@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.openqa.selenium.HasAuthentication;
 import org.openqa.selenium.NoAlertPresentException;
@@ -21,16 +22,24 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
+import io.cucumber.java.DataTableType;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.java.it.Data;
 import utilsClasses.StringUtilsFunctions;
 
 public class StepDefinitions {
+	
+	
 	@When("data is like")
-	public void data_is_like(List<Map<Object, Object>> data) {
+	public void data_is_like(DataTable data) {
 		// Write code here that turns the phrase above into concrete actions
 		// For automatic transformation, change DataTable to one of
 		// E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
@@ -38,10 +47,26 @@ public class StepDefinitions {
 		// Double, Byte, Short, Long, BigInteger or BigDecimal.
 		//
 		// For other transformations you can register a DataTableType.
+		
+		
+//		List<pageObjects.Data> dataList=data.asList(pageObjects.Data.class);
+//		dataList.forEach(s-> System.out.println(s.getName()));
+TestBase.testObject.set(data.asMaps(String.class, Object.class));
+List<Map<String,Object>>d=TestBase.testObject.get();
+for(Map<String,Object>da:d) {
+	da.entrySet().forEach(s->System.out.println(s.getKey()+" "+s.getValue()));
+}
 
-		data.forEach(t -> System.out.println(t));
 
 	}
+	 @DataTableType
+	    public pageObjects.Data authorEntry(Map<String, String> entry) {
+		 pageObjects.Data data=new pageObjects.Data();
+		 data.setName(entry.get("name"));
+		 data.setPassword(entry.get("password"));
+	        return data;
+	    }
+
 	
 
 @When("I autheticate user with credentials")
@@ -152,7 +177,7 @@ public void alert_should_be_available_on_the_page() {
 	@Then("User login should see {string}")
 	public void user_login_should(String string) {
 		Assert.assertTrue(TestBase.getElement("dashboardsearchfield").isDisplayed());
-		System.out.println("Checking initial pool");
+
 	}
 
 	@Given("I am on Dashboard page")

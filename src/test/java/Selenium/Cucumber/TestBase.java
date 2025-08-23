@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -30,6 +31,7 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 
 import Listeners.EventFiringClass;
+import io.appium.java_client.AppiumDriver;
 import io.cucumber.java.After;
 import io.cucumber.java.AfterAll;
 import io.cucumber.java.Before;
@@ -38,22 +40,24 @@ import io.cucumber.java.Scenario;
 import utilsClasses.PropertiesFIlesHelper;
 
 public class TestBase {
-	
-public static ThreadLocal<Scenario>scenarios=null;
 	public static PropertiesFIlesHelper pageObjects = null;
 	public static PropertiesFIlesHelper config = null;
+public static ThreadLocal<Scenario>scenarios=null;
+	
 	public static ThreadLocal<WebDriver> drivers = null;
 	public static ThreadLocal<WebDriverWait> wait = null;
 	public static ThreadLocal<JavascriptExecutor> js = null;
 	public static ThreadLocal<ExtentTest> extentTest = null;
+	public static ThreadLocal<List<Map<String,Object>>> testObject=null;
 	public static ExtentReports report = null;
-	
 
 	@BeforeAll
 	public static void before_or_after_all() throws IOException {
+		
+		
 		if (pageObjects == null) {
 			pageObjects = new PropertiesFIlesHelper(
-					System.getProperty("user.dir").concat("/src/main/resources/" + "pageObjects.properties"));
+					System.getProperty("user.dir").concat("/src/main/resources/" + "pageObjects2.properties"));
 
 			config = new PropertiesFIlesHelper(
 					System.getProperty("user.dir").concat("/src/main/resources/" + "config.properties"));
@@ -65,6 +69,7 @@ public static ThreadLocal<Scenario>scenarios=null;
 		extentTest = new ThreadLocal<>();
 		report = new ExtentReports();
 		scenarios=new ThreadLocal<>();
+		testObject=new ThreadLocal<>();
 		
 		System.setProperty("hudson.model.DirectoryBrowserSupport.CSP",
 				"sandbox allow-same-origin; default-src 'self';");
@@ -77,9 +82,9 @@ public static ThreadLocal<Scenario>scenarios=null;
 		report.attachReporter(rs);
 	}
 
-	@Before
+//	@Before
 	public void before_or_after(Scenario test) {
-		
+	
 		scenarios.set(test);
 		extentTest.set(report.createTest(test.getName()));
 		extentTest.get().assignAuthor("Rohit Sharma");
@@ -106,36 +111,21 @@ public static ThreadLocal<Scenario>scenarios=null;
 		wait.set((new WebDriverWait(drivers.get(), Duration.ofSeconds(30))));
 	}
 
-//	@After()
+	@After
 	public void after(Scenario test) throws Exception {
 
-		if(test.isFailed()) {
-			byte[] js = ((TakesScreenshot) drivers.get()).
-					getScreenshotAs(OutputType.BYTES);
-			test.attach(js, "image/png", test.getName());
-			TakesScreenshot ts = (TakesScreenshot) drivers.get();
-			File file = new File(System.getProperty("user.dir").
-					concat("/screenshots/"+test.getName()+".png"));
-			FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
-			extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
-		extentTest.get().fail(test.getName()+" from test base");
 		
 		
-		
-		throw new Exception("Assertion error for test "+test.getName());
-		
-}
-	
 	}
 
 	@AfterAll
 	public static void afterall() {
 //MailerClass.prepareEmail();
+//		drivers.get().quit();
 		report.flush();
 	}
 
 	public static WebElement getElement(By locator) {
-
 		return drivers.get().findElement(locator);
 	}
 
@@ -145,15 +135,10 @@ public static ThreadLocal<Scenario>scenarios=null;
 		switch (locatortype) {
 		case "xpath":
 			System.out.println("locator value are "+pageObjects.getProperty(locator).toString().split("@@@")[1]);
-	
-
 			return drivers.get().findElement(By.xpath(pageObjects.getProperty(locator).toString().split("@@@")[1]));
-
 		default:
-
 			return drivers.get().findElement(By.xpath(pageObjects.getProperty(locator).toString().split("@@@")[1]));
 		}
-
 	}
 	public static List<WebElement> getElements(String locator) {
 		System.out.println("locator is "+locator);
@@ -235,7 +220,6 @@ public static ThreadLocal<Scenario>scenarios=null;
 			driver.manage().addCookie(c);
 		}
 		actions.moveToElement(driver.findElement(By.xpath("(//*[@id=\"examples\"]//a)[2]"))).build().perform();
-
 		driver.findElement(By.xpath("(//*[@id=\"examples\"]//a)[2]")).click();
 		actions.moveToElement(driver.findElement(By.xpath("//button[@type=\"submit\"]"))).build().perform();
 		driver.findElement(By.xpath("//button[@type=\"submit\"]")).click();

@@ -722,17 +722,6 @@ public class WebEventsListener implements WebDriverListener {
 		WebDriverListener.super.afterImplicitlyWait(timeouts, duration);
 	}
 
-	@Override
-	public void beforeSetScriptTimeout(Timeouts timeouts, Duration duration) {
-		// TODO Auto-generated method stub
-		WebDriverListener.super.beforeSetScriptTimeout(timeouts, duration);
-	}
-
-	@Override
-	public void afterSetScriptTimeout(Timeouts timeouts, Duration duration) {
-		// TODO Auto-generated method stub
-		WebDriverListener.super.afterSetScriptTimeout(timeouts, duration);
-	}
 
 	@Override
 	public void beforePageLoadTimeout(Timeouts timeouts, Duration duration) {

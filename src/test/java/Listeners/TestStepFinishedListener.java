@@ -28,7 +28,7 @@ public class TestStepFinishedListener implements ConcurrentEventListener{
 						e.printStackTrace();
 					}
 				});
-    }
+			}
 
     
 	private void handleTestFinished(TestStepFinished finish) throws Exception {
@@ -58,7 +58,6 @@ public class TestStepFinishedListener implements ConcurrentEventListener{
         if(finish.getResult().getStatus()==Status.PASSED) {
         	  System.out.println("Test Step finished with pass"+step.getStep().getText());
 			TestBase.extentTest.get().log(com.aventstack.extentreports.Status.PASS, step.getStep().getText());
-
         }
         	
 	}	
