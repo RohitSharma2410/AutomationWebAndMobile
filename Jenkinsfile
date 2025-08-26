@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven 'M3'        // Jenkins Maven tool name
-        allure 'allure'   // Jenkins Allure tool name, make sure it matches your Jenkins configuration
+        allure 'allure'   // Jenkins Allure tool name
     }
 
     environment {
@@ -15,29 +15,34 @@ pipeline {
         string(name: 'TAGS', defaultValue: '@Web or @Mobile', description: 'Cucumber tags to execute')
     }
 
-    stage('Checkout') {
-    steps {
-        sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
-            sh '''
-                rm -rf *
-                git clone git@github.com:RohitSharma2410/AutomationWebAndMobile.git .
-                git checkout main
-                git log -1 --oneline
-            '''
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[
+                            url: 'git@github.com:RohitSharma2410/AutomationWebAndMobile.git',
+                            credentialsId: '4470f16b-442d-4053-a0bf-835a2b08383e'
+                        ]],
+                        extensions: [[$class: 'WipeWorkspace']]  // Clean workspace before checkout
+                    ])
+                }
+            }
         }
-    }
-}
-
-
 
         stage('Clean Reports') {
             steps {
+                echo 'Cleaning previous reports...'
                 sh 'rm -rf allure-results allure-report clean-allure-results'
             }
         }
 
         stage('Start Appium Container') {
             steps {
+                echo 'Starting Appium Docker container...'
                 dir('appium/docker') {
                     sh 'docker-compose up -d'
                 }
@@ -51,6 +56,7 @@ pipeline {
                     def parallel = tags.contains("@Mobile") ? "none" : "methods"
                     def threads = tags.contains("@Mobile") ? "1" : "4"
 
+                    echo "Running tests with tags: ${tags}"
                     sh """
                       mvn clean test \
                       -Dcucumber.filter.tags="${tags}" \
@@ -60,19 +66,18 @@ pipeline {
                 }
             }
         }
-
-        // Removed Clean Skipped Allure Results stage
-
     }
 
     post {
         always {
-			   allure includeProperties: false,
-               jdk: '',
-               reportBuildPolicy: 'ALWAYS',
-               commandline: 'allure',
-               results: [[path: 'allure-results']]
-            echo 'Stopping and cleaning up Docker containers...'
+            echo 'Generating Allure report...'
+            allure includeProperties: false,
+                   jdk: '',
+                   reportBuildPolicy: 'ALWAYS',
+                   commandline: 'allure',
+                   results: [[path: 'allure-results']]
+
+            echo 'Stopping Appium Docker container...'
             dir('appium/docker') {
                 sh 'docker-compose down || true'
             }
