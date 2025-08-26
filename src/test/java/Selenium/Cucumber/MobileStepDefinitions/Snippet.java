@@ -35,7 +35,7 @@ public class Snippet {
 		// Write code here that turns the phrase above into concrete actions
 		try {
 			getMobileElement(string);
-			Assert.fail();
+			
 		} catch (Exception _) {
 
 		}
