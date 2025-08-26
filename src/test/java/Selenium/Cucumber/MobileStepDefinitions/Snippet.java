@@ -4,6 +4,8 @@ import static utilsClasses.MobileDriverUtils.clickElement;
 import static utilsClasses.MobileDriverUtils.getMobileElement;
 import static utilsClasses.MobileDriverUtils.typeinToElement;
 
+import org.testng.Assert;
+
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -33,6 +35,7 @@ public class Snippet {
 		// Write code here that turns the phrase above into concrete actions
 		try {
 			getMobileElement(string);
+			Assert.fail();
 		} catch (Exception _) {
 
 		}
