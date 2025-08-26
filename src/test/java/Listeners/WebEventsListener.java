@@ -21,11 +21,10 @@ import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.WindowType;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.events.WebDriverListener;
 
-import Selenium.Cucumber.TestBase;
+
 
 public class WebEventsListener implements WebDriverListener {
 
@@ -279,18 +278,7 @@ public class WebEventsListener implements WebDriverListener {
 		WebDriverListener.super.afterAnyWebElementCall(element, method, args, result);
 	}
 
-	@Override
-	public void beforeClick(WebElement element) {
-		// TODO Auto-generated method stub
-		WebDriverListener.super.beforeClick(element);
-		if (!element.isEnabled()) {
-//			TestBase.extentTest.get().info("element is not enabled");
-		}
-		Actions actions = new Actions(TestBase.drivers.get());
-		actions.moveToElement(element).build().perform();
-//		TestBase.extentTest.get().info("Looking to click web element ");
-
-	}
+	
 
 	@Override
 	public void afterClick(WebElement element) {

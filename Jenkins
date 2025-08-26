@@ -5,8 +5,18 @@ pipeline {
 maven 'M3'
 }
 
+environment {
+        COMPOSE_PROJECT_NAME = 'mytests'
+    }
 
     stages {
+        stage('Clone Repo') {
+            steps {
+                git 'https://github.com/your-org/your-repo.git'
+            }
+        }
+        
+      
         stage('Test') {
             steps {
                 sh "mvn -D clean test"
@@ -34,4 +44,26 @@ maven 'M3'
         }
     }
 }
-}
+
+        
+
+        stage('Start Docker Grid + Appium') {
+            steps {
+                sh 'docker-compose up -d'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh './gradlew test'  // or mvn test, or your actual command
+            }
+        }
+
+        stage('Teardown') {
+            steps {
+                sh 'docker-compose down'
+            }
+        }
+    }
+
+    

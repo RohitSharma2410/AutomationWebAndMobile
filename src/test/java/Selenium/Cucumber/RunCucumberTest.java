@@ -10,20 +10,19 @@ import io.cucumber.testng.CucumberOptions;
 import io.cucumber.testng.FeatureWrapper;
 import io.cucumber.testng.PickleWrapper;
 
-@CucumberOptions(features = { "src/test/resources/Selenium/Cucumber" }, glue = { "Selenium.Cucumber",
-		"Selenium.Cucumber.TestBase" },plugin = {  "json:target/cucumber-reports/Cucumber.json",
+@CucumberOptions(features = { "src/test/resources/Selenium/Cucumber" }, glue = { "Selenium.Cucumber" },plugin = {  "json:target/cucumber-reports/Cucumber.json",
 				"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm",
 				"Listeners.ParallelEventListenerCucumber"
-				},tags= "@Login")
+				})
 public class RunCucumberTest extends AbstractTestNGCucumberTests {
 
 	@Override
-	@DataProvider(parallel = false)
+	@DataProvider(parallel = true)
 	public Object[][] scenarios() {
 //		Object[][] scArray=new Object[super.scenarios().length][];
 		
 		System.out.println(super.scenarios().length+"total ");
-		System.out.println(super.scenarios()[0].length);
+//		System.out.println(super.scenarios()[0].length);
 //		Arrays.sort(super.scenarios());
 		return super.scenarios();
 	}

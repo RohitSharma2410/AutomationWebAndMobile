@@ -1,8 +1,11 @@
 package Listeners;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.time.Duration;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -11,73 +14,176 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 
-import Selenium.Cucumber.TestBase;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+import io.appium.java_client.service.local.AppiumDriverLocalService;
+import io.appium.java_client.service.local.AppiumServiceBuilder;
+
 import io.cucumber.java.Scenario;
 import io.cucumber.plugin.ConcurrentEventListener;
+import io.cucumber.plugin.Plugin;
 import io.cucumber.plugin.event.EventPublisher;
-import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.PickleStepTestStep;
 import io.cucumber.plugin.event.Status;
 import io.cucumber.plugin.event.TestCaseFinished;
 import io.cucumber.plugin.event.TestCaseStarted;
 import io.cucumber.plugin.event.TestRunFinished;
+import io.cucumber.plugin.event.TestRunStarted;
 import io.cucumber.plugin.event.TestStepFinished;
-import io.cucumber.plugin.Plugin;
-public class ParallelEventListenerCucumber implements ConcurrentEventListener,Plugin {
-	
+import io.cucumber.plugin.event.TestStepStarted;
 
-	private static ThreadLocal<String>scenarioName=new ThreadLocal<>();
+import utilsClasses.PropertiesFIlesHelper;
+import utilsClasses.WebDriverUtils;
 
-	@Override
+public class ParallelEventListenerCucumber implements ConcurrentEventListener, Plugin {
+
+    public static AppiumDriverLocalService service = null;
+    public static ThreadLocal<Scenario> scenarios = null;
+    public static ThreadLocal<AppiumDriver> mobileDrivers = null;
+    public static ThreadLocal<WebDriverUtils> webdriverUtils = null;
+    public static ThreadLocal<WebDriver> drivers = null;
+    public static ThreadLocal<WebDriverWait> wait = null;
+    public static ThreadLocal<JavascriptExecutor> js = null;
+    public static ThreadLocal<ExtentTest> extentTest = null;
+    public static ExtentReports report = null;
+    public static PropertiesFIlesHelper pageObjects = null;
+    public static PropertiesFIlesHelper config = null;
+    public static ThreadLocal<String> scenarioName = new ThreadLocal<>();
+    public static PropertiesFIlesHelper mobileObject = null;
+    private static URL gridUrl = null;
+
+    // Called once before all tests start
+    private void handleTestRunStarted(TestRunStarted event) {
+        scenarios = new ThreadLocal<>();
+        mobileDrivers = new ThreadLocal<>();
+        drivers = new ThreadLocal<>();
+        wait = new ThreadLocal<>();
+        js = new ThreadLocal<>();
+        extentTest = new ThreadLocal<>();
+        report = new ExtentReports();
+        scenarioName = new ThreadLocal<>();
+        webdriverUtils = new ThreadLocal<>();
+        report = new ExtentReports();
+
+        try {
+            config = new PropertiesFIlesHelper(System.getProperty("user.dir") + "/src/main/resources/config.properties");
+            pageObjects = new PropertiesFIlesHelper(System.getProperty("user.dir") + "/src/main/resources/pageObjects2.properties");
+            mobileObject = new PropertiesFIlesHelper(System.getProperty("user.dir") + "/src/main/resources/mobileObjects.properties");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Start Appium service once per entire test run if Android driver is configured
+        if ("android".equalsIgnoreCase(config.getProperty("mobiledriver").toString())) {
+            if (service == null || !service.isRunning()) {
+                String androidHome = "/Users/rohitsharma/Library/Android/sdk";
+                Map<String, String> env = new HashMap<>(System.getenv());
+                env.put("ANDROID_HOME", androidHome);
+                env.put("PATH", androidHome + "/platform-tools:" + env.get("PATH"));
+
+                service = new AppiumServiceBuilder()
+                        .withEnvironment(env)
+                        .withAppiumJS(new File("/usr/local/lib/node_modules/appium/build/lib/main.js"))
+                        .withLogFile(new File("appium.log"))
+                        .withTimeout(Duration.ofSeconds(60))
+                        .usingPort(4725)
+                        .build();
+                service.start();
+                System.out.println("Appium Service started at port 4725");
+            }
+        }
+    }
+
+    // Called once after all tests finish
+    private void handleTestRunFinished(TestRunFinished event) {
+        if (service != null && service.isRunning()) {
+            service.stop();
+            System.out.println("Appium Service stopped after all tests");
+        }
+    }
+
+    @Override
     public void setEventPublisher(EventPublisher publisher) {
+        publisher.registerHandlerFor(TestRunStarted.class, this::handleTestRunStarted);
+        publisher.registerHandlerFor(TestRunFinished.class, this::handleTestRunFinished);
+
         publisher.registerHandlerFor(TestCaseStarted.class, this::handleTestCaseStarted);
+        publisher.registerHandlerFor(TestStepStarted.class, this::handleTestStepStarted);
+
         publisher.registerHandlerFor(TestStepFinished.class, this::handleTestStepFinished);
-        publisher.registerHandlerFor(TestCaseFinished.class, event -> {
-			try {
-				handleTestCaseFinished(event);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
+        publisher.registerHandlerFor(TestCaseFinished.class, this::handleTestCaseFinished);
     }
 
     private void handleTestCaseStarted(TestCaseStarted event) {
         scenarioName.set(event.getTestCase().getName());
         System.out.println("[START] " + scenarioName.get() + " on Thread " + Thread.currentThread().getId());
 
-		TestBase.extentTest.set(TestBase.report.createTest(event.getTestCase().getName()));
-		TestBase.extentTest.get().assignAuthor("Rohit Sharma");
-		
-		switch (TestBase.config.getProperty("browser").toString().toLowerCase()) {
-		case "chrome":
-			ChromeOptions options = new ChromeOptions();
-			options.setAcceptInsecureCerts(true);
-//			options.addArguments("--headless=new");
-			options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
-			TestBase.drivers.set(new ChromeDriver(options));
-			break;
-		case "firefox":
-			FirefoxOptions foptions=new FirefoxOptions();
-			foptions.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
-			TestBase.drivers.set(new FirefoxDriver(foptions));
-			break;
-		}
-		TestBase.drivers.set(new EventFiringClass().getDriver(TestBase.drivers.get()));
-		TestBase.drivers.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
-		TestBase.drivers.get().get(TestBase.config.getProperty("appurl").toString());
-		TestBase.drivers.get().manage().window().maximize();
-		TestBase.js.set((JavascriptExecutor)TestBase. drivers.get());
-		TestBase.wait.set((new WebDriverWait(TestBase.drivers.get(), Duration.ofSeconds(30))));
-	
+        extentTest.set(report.createTest(event.getTestCase().getName()));
+        extentTest.get().assignAuthor("Rohit Sharma");
+
+        try {
+            if (gridUrl == null) {
+                gridUrl = URI.create("http://localhost:4444").toURL();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        if (event.getTestCase().getTags().contains("@Web")) {
+            switch (config.getProperty("webdriver").toString().toLowerCase()) {
+                case "chrome":
+                    ChromeOptions options = new ChromeOptions();
+                    options.setAcceptInsecureCerts(true);
+                    options.addArguments("--headless=new");
+                    options.addArguments("--disable-gpu");
+                    options.addArguments("--no-sandbox");
+                    options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
+                    drivers.set(new RemoteWebDriver(gridUrl, options));
+                    break;
+                case "firefox":
+                    FirefoxOptions foptions = new FirefoxOptions();
+                    foptions.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
+                    drivers.set(new FirefoxDriver(foptions));
+                    break;
+            }
+            drivers.set(new EventFiringClass().getDriver(drivers.get()));
+            drivers.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
+            drivers.get().get(config.getProperty("appurl").toString());
+            drivers.get().manage().window().maximize();
+            js.set((JavascriptExecutor) drivers.get());
+            wait.set(new WebDriverWait(drivers.get(), Duration.ofSeconds(30)));
+        }
+
+        if (event.getTestCase().getTags().contains("@Mobile")) {
+            switch (config.getProperty("mobiledriver").toString().toLowerCase()) {
+                case "android":
+                    UiAutomator2Options options = new UiAutomator2Options();
+                    options.setDeviceName("pixel7");
+                    options.setAutomationName("UIAutomator2");
+                    options.setApp("/Users/rohitsharma/eclipse-workspace/Appium/ApiDemos-debug.apk");
+
+                    try {
+                        // Connect to already running Appium service
+                        mobileDrivers.set(new AndroidDriver(new URL("http://localhost:4725"), options));
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                    mobileDrivers.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     private void handleTestStepFinished(TestStepFinished event) {
@@ -86,33 +192,49 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener,Pl
         }
     }
 
-   
-    private void handleTestCaseFinished(TestCaseFinished event)  {
+    private void handleTestStepStarted(TestStepStarted event) {
+        if (event.getTestStep() instanceof PickleStepTestStep) {
+            PickleStepTestStep currentStep = (PickleStepTestStep) event.getTestStep();
+            System.out.println("Test Step started " + currentStep.getStep().getText());
+        }
+    }
+
+    private void handleTestCaseFinished(TestCaseFinished event) {
         System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getId());
-        scenarioName.remove();  // Clean up
+        scenarioName.remove(); // Clean up
+
         try {
-        if(event.getResult().getStatus()==Status.FAILED) {
-        	
-    			byte[] js = ((TakesScreenshot) TestBase.drivers.get()).
-    					getScreenshotAs(OutputType.BYTES);
-    			
-    			TakesScreenshot ts = (TakesScreenshot) TestBase.drivers.get();
-    			File file = new File(System.getProperty("user.dir").
-    					concat("/screenshots/"+event.getTestCase().getName()+".png"));
-    			FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
-    			TestBase.extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
-    			TestBase.extentTest.get().fail(event.getTestCase().getName()+" from test base");
-    			}	
-       
-        }
-        catch(Exception e) {
-        	System.out.println("error while puting screenshot to report");
-        }
-        finally {
-        TestBase.drivers.get().close();
-        System.out.println("Test case finished");
+            if (event.getResult().getStatus() == Status.FAILED) {
+                if (drivers.get() != null) {
+                    TakesScreenshot ts = (TakesScreenshot) drivers.get();
+                    File file = new File(System.getProperty("user.dir") + "/screenshots/" + event.getTestCase().getName() + ".png");
+                    FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
+                    extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
+                    extentTest.get().fail(event.getTestCase().getName() + " failed.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (mobileDrivers != null && mobileDrivers.get() != null) {
+                    mobileDrivers.get().quit();
+                    mobileDrivers.remove();
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to quit mobile driver: " + e.getMessage());
+            }
+
+            try {
+                if (drivers != null && drivers.get() != null) {
+                    drivers.get().quit();
+                    drivers.remove();
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to quit web driver: " + e.getMessage());
+            }
+
+            System.out.println("Test case cleanup finished.");
         }
     }
 }
-	  
-

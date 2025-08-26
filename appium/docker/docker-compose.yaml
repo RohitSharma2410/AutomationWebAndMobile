@@ -1,0 +1,66 @@
+
+services:
+  selenium-hub:
+    image: selenium/hub:4.11.0
+    platform: linux/amd64
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+    networks:
+      - selenium-grid-net
+
+  chrome-node-1:
+    image: selenium/node-chrome:4.11.0
+    platform: linux/amd64
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    networks:
+      - selenium-grid-net
+
+  chrome-node-2:
+    image: selenium/node-chrome:4.11.0
+    platform: linux/amd64
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    networks:
+      - selenium-grid-net
+
+  chrome-node-3:
+    image: selenium/node-chrome:4.11.0
+    platform: linux/amd64
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    networks:
+      - selenium-grid-net
+
+  appium:
+    image: appium/appium:latest
+    platform: linux/amd64
+    container_name: appium
+    ports:
+      - "4723:4723"
+    environment:
+      - CONNECT_TO_GRID=true
+      - SELENIUM_HOST=selenium-hub
+      - APPIUM_ARGS=--session-override
+    depends_on:
+      - selenium-hub
+    networks:
+      - selenium-grid-net
+
+networks:
+  selenium-grid-net:
+    driver: bridge
+

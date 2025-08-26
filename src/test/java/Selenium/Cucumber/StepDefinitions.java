@@ -1,42 +1,42 @@
 package Selenium.Cucumber;
 
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import static Listeners.ParallelEventListenerCucumber.config;
+import static Listeners.ParallelEventListenerCucumber.drivers;
+import static Listeners.ParallelEventListenerCucumber.webdriverUtils;
+import static utilsClasses.WebDriverUtils.getWebElement;
+import static utilsClasses.WebDriverUtils.getWebElementOnElement;
+import static utilsClasses.WebDriverUtils.getWebElementWithUpdatedValue;
+import static utilsClasses.WebDriverUtils.getWebElements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.openqa.selenium.HasAuthentication;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.UsernameAndPassword;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import Listeners.ParallelEventListenerCucumber;
 import io.cucumber.datatable.DataTable;
-import io.cucumber.java.After;
 import io.cucumber.java.DataTableType;
-import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.java.it.Data;
 import utilsClasses.StringUtilsFunctions;
+import utilsClasses.WebDriverUtils;
 
-public class StepDefinitions {
+public class StepDefinitions{
 	
+
+	
+
 	
 	@When("data is like")
 	public void data_is_like(DataTable data) {
@@ -51,14 +51,11 @@ public class StepDefinitions {
 		
 //		List<pageObjects.Data> dataList=data.asList(pageObjects.Data.class);
 //		dataList.forEach(s-> System.out.println(s.getName()));
-TestBase.testObject.set(data.asMaps(String.class, Object.class));
-List<Map<String,Object>>d=TestBase.testObject.get();
-for(Map<String,Object>da:d) {
-	da.entrySet().forEach(s->System.out.println(s.getKey()+" "+s.getValue()));
+	
 }
 
 
-	}
+	
 	 @DataTableType
 	    public pageObjects.Data authorEntry(Map<String, String> entry) {
 		 pageObjects.Data data=new pageObjects.Data();
@@ -73,16 +70,17 @@ for(Map<String,Object>da:d) {
 public void i_autheticate_user_with_credentials() {
     // Write code here that turns the phrase above into concrete actions
 	
-	 HasAuthentication authentication=(HasAuthentication)TestBase.drivers.get();
+	 HasAuthentication authentication=(HasAuthentication)drivers.get();
 	 authentication.register(()->new UsernameAndPassword("admin","admin"));
 	 
     
 }
 @Then("following {string} should be available on page")
 public void following_should_be_available_on_page(String string) {
-    // Write code here that turns the phrase above into concrete actions
-//	TestBase.scenarios.get().log("Assert "+string+ "is visible on page");
-	Assert.assertTrue(TestBase.getElement(string).isDisplayed());
+   
+	// Write code here that turns the phrase above into concrete actions
+//	 scenarios.get().log("Assert "+string+ "is visible on page");
+	Assert.assertTrue(getWebElement(string).isDisplayed());
    
 }
 
@@ -105,14 +103,13 @@ public void following_should_be_available_on_page(String string) {
 
 	@Then("Validate all of response for {string} should be \\{{int}}")
 public void validate_all_of(String string,Integer int1) throws MalformedURLException, IOException {
-	List<WebElement>allElements=TestBase.getElements(string);
-
-    // Write code here that turns the phrase above into concrete actions
+	webdriverUtils.get();
+	List<WebElement>allElements=getWebElements(string);
 	for(int i=0;i<allElements.size();i++) {
 		String src=allElements.get(i)
 				.getDomAttribute("src");
 		System.out.println("src is "+src);
-		HttpURLConnection conn =(HttpURLConnection) URI.create(TestBase.config.
+		HttpURLConnection conn =(HttpURLConnection) URI.create(config.
 				getProperty("appurl").toString().concat(src)).toURL().openConnection() ;
         conn.setRequestMethod("HEAD");
         conn.connect();
@@ -129,54 +126,60 @@ public void all_links_should_populate_all_of_link_status() {
 public void dragAndDrop(String string,String string2) {
     // Write code here that turns the phrase above into concrete actions
 
-   Actions actions=new Actions(TestBase.drivers.get());
-   actions
-   .dragAndDrop(TestBase.getElement(string), TestBase.getElement(string2)).build().perform();
+   Actions actions=new Actions(drivers.get());
+   ParallelEventListenerCucumber.webdriverUtils.get();
+ParallelEventListenerCucumber.webdriverUtils.get();
+actions
+   .dragAndDrop(WebDriverUtils.getWebElement(string),  getWebElement(string2)).build().perform();
 }
 
 @Then("element {string} should be draged to target successfully")
 public void dragSuccess(String string) {
-//	TestBase.scenarios.get().log("Asserting step");
-	Assert.assertTrue(TestBase.getElements("DragElements").get(1).getLocation().getY()==TestBase.getElement(string).getLocation().getY());
+ParallelEventListenerCucumber.webdriverUtils.get();
+	ParallelEventListenerCucumber.webdriverUtils.get();
+	//	 scenarios.get().log("Asserting step");
+	Assert.assertTrue( getWebElements("DragElements").get(1).getLocation().getY()== getWebElement(string).getLocation().getY());
 	
 }
 @When("I right click on {string}")
 public void i_right_click_on(String string) {
     // Write code here that turns the phrase above into concrete actions
 
-   Actions actions=new Actions(TestBase.drivers.get());
-   actions
-   .contextClick(TestBase.getElement(string)).build().perform();
+   Actions actions=new Actions( drivers.get());
+   ParallelEventListenerCucumber.webdriverUtils.get();
+actions
+   .contextClick( getWebElement(string)).build().perform();
 }
 @Then("alert should be available on the page")
 public void alert_should_be_available_on_the_page() {
     // Write code here that turns the phrase above into concrete actions
-    try{TestBase.drivers.get().switchTo().alert().dismiss();
+    try{ drivers.get().switchTo().alert().dismiss();
     }
     catch(NoAlertPresentException e) {
-//		TestBase.scenarios.get().log("Assertion failed");
+//		 scenarios.get().log("Assertion failed");
 
     	new SoftAssert().fail("Alert is not pop up");
     }
 }
 
 
-	@When("I click on {string}")
+	@When("I click on web {string}")
 	public void i_click_on(String string) {
 		// Write code here that turns the phrase above into concrete actions
-		TestBase.getElement(string).click();
+		getWebElement(string).click();
 
 	}
 
-	@When("I enter {string} in {string} field")
+	@When("I enter {string} in {string} web field")
 	public void i_enter_in_field(String string, String string2) {
-		TestBase.getElement(string2).sendKeys(string);
+		 ParallelEventListenerCucumber.webdriverUtils.get();
+		getWebElement(string2).sendKeys(string);
 
 	}
 
 	@Then("User login should see {string}")
 	public void user_login_should(String string) {
-		Assert.assertTrue(TestBase.getElement("dashboardsearchfield").isDisplayed());
+		Assert.assertTrue( getWebElement("dashboardsearchfield").isDisplayed());
 
 	}
 
@@ -189,8 +192,8 @@ public void alert_should_be_available_on_the_page() {
 	@When("I check transaction {string} on {string}")
 	public void i_check_transaction_on(String string, String string2) {
 		// Write code here that turns the phrase above into concrete actions
-		TestBase.getElementOnElement("allTransactionsStatus",
-				TestBase.getElementWithUpdatedValue(string, "transaction", "string2"));
+		 getWebElementOnElement("allTransactionsStatus",
+				 getWebElementWithUpdatedValue(string, "transaction", "string2"));
 	}
 
 	@Then("I check transaction {string} on {string} then status should be {string} and amount should be {int}")
@@ -198,17 +201,19 @@ public void alert_should_be_available_on_the_page() {
 			String string3, Integer int1) throws Exception {
 		{
 			// Write code here that turns the phrase above into concrete actions
-			String valueOfStatus = TestBase.getElementOnElement("allTransactionsStatus",
-					TestBase.getElementWithUpdatedValue(string2, "transaction", string)).getText();
+			String valueOfStatus =  getWebElementOnElement("allTransactionsStatus",
+					 getWebElementWithUpdatedValue(string2, "transaction", string)).getText();
 			System.out.println(valueOfStatus);
-//			TestBase.scenarios.get().log(assertionCheckValue(valueOfStatus,string3));
+//			 scenarios.get().log(assertionCheckValue(valueOfStatus,string3));
 
 			Assert.assertTrue (valueOfStatus.equalsIgnoreCase(string3));
+		
 			int amountvalue = StringUtilsFunctions
-					.returnOnlyNumeric(TestBase.getElementOnElement("alltransactionsamount",
-							TestBase.getElementWithUpdatedValue(string2, "transaction", string)).getText());
-//			TestBase.scenarios.get().log(assertionCheckValue(amountvalue,int1));
+					.returnOnlyNumeric( getWebElementOnElement("alltransactionsamount",
+							 getWebElementWithUpdatedValue(string2, "transaction", string)).getText());
+//			 scenarios.get().log(assertionCheckValue(amountvalue,int1));
 			Assert.assertTrue (amountvalue == int1);
+			System.out.println(ParallelEventListenerCucumber.drivers.get().getCurrentUrl());
 		}
 
 	}

@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  selenium-hub:
+    image: selenium/hub:4.8.0
+    ports:
+      - "4444:4444"
+
+  android-node:
+    image: budtmo/docker-android-x86-8.1
+    privileged: true
+    environment:
+      - DEVICE="Samsung Galaxy S6"
+      - APPIUM=true
+      - CONNECT_TO_GRID=true
+      - APPIUM_HOST=selenium-hub
+      - APPIUM_PORT=4723
+      - SELENIUM_HOST=selenium-hub
+      - SELENIUM_PORT=4444
+    depends_on:
+      - selenium-hub
+    ports:
+      - "6080:6080"
+      - "5555:5555"
+      - "4723:4723"
+
