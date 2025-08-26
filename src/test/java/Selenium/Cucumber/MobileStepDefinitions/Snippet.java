@@ -33,7 +33,7 @@ public class Snippet {
 		// Write code here that turns the phrase above into concrete actions
 		try {
 			getMobileElement(string);
-		} catch (Exception e) {
+		} catch (Exception _) {
 
 		}
 

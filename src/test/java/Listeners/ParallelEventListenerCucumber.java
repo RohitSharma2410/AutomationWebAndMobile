@@ -76,7 +76,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		webdriverUtils = new ThreadLocal<>();
 		report = new ExtentReports();
 		 ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter("extent-report.html");
-	       
+
 	        report.attachReporter(htmlReporter);
 		Allure.description("TEST RUN STARTED");
 		try {
@@ -91,8 +91,8 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		}
 
 		// Start Appium service once per entire test run if Android driver is configured
-		if ("android".equalsIgnoreCase(config.getProperty("mobiledriver").toString())) {
-			if (service == null || !service.isRunning()) {
+		if ("android".equalsIgnoreCase(config.getProperty("mobiledriver").toString())&service == null || !service.isRunning()) {
+
 				String androidHome = "/Users/rohitsharma/Library/Android/sdk";
 				Map<String, String> env = new HashMap<>(System.getenv());
 				env.put("ANDROID_HOME", androidHome);
@@ -105,7 +105,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 				service.start();
 				System.out.println("Appium Service started at port 4725");
 			}
-		}
+
 	}
 
 	// Called once after all tests finish
@@ -132,7 +132,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	private void handleTestCaseStarted(TestCaseStarted event) {
 		Allure.description("Test Case Started " + event.getTestCase().getName());
 		scenarioName.set(event.getTestCase().getName());
-		System.out.println("[START] " + scenarioName.get() + " on Thread " + Thread.currentThread().getId());
+		System.out.println("[START] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
 		extentTest.set(report.createTest(event.getTestCase().getName()));
 		extentTest.get().assignAuthor("Rohit Sharma");
 
@@ -163,6 +163,15 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 				foptions.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
 				drivers.set(new FirefoxDriver(foptions));
 				break;
+				default:
+					options = new ChromeOptions();
+					options.setAcceptInsecureCerts(true);
+					options.addArguments("--headless=new");
+					options.addArguments("--disable-gpu");
+					options.addArguments("--no-sandbox");
+					options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
+					drivers.set(new RemoteWebDriver(gridUrl, options));
+					break;
 			}
 			drivers.set(new EventFiringClass().getDriver(drivers.get()));
 			drivers.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
@@ -182,7 +191,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 				try {
 					// Connect to already running Appium service
-					mobileDrivers.set(new AndroidDriver(new URL("http://localhost:4725"), options));
+					mobileDrivers.set(new AndroidDriver(URI.create("http://localhost:4725").toURL(), options));
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
@@ -225,12 +234,11 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	}
 
 	private void handleTestCaseFinished(TestCaseFinished event) {
-		System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getId());
+		System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
 		scenarioName.remove(); // Clean up
 
 		try {
 			if (event.getResult().getStatus() == Status.FAILED) {
-				if (drivers.get() != null) {
 					TakesScreenshot ts = (TakesScreenshot) drivers.get();
 					File file = new File(
 							System.getProperty("user.dir") + "/screenshots/" + event.getTestCase().getName() + ".png");
@@ -240,9 +248,11 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 					// Attach screenshot also to Allure report
 					byte[] screenshotBytes = ts.getScreenshotAs(OutputType.BYTES);
-					Allure.addAttachment("Screenshot - Test Failed", new ByteArrayInputStream(screenshotBytes));
+					try (ByteArrayInputStream bais = new ByteArrayInputStream(screenshotBytes)) {
+						Allure.addAttachment("Screenshot - Test Failed", bais);
+					}
 				}
-			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
