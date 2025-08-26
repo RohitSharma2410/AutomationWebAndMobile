@@ -66,16 +66,15 @@ parameters {
             }
         }
 
-        stage('Generate Allure Report') {
-            steps {
-                allure includeProperties: false,
-                       jdk: '',
-                       reportBuildPolicy: 'ALWAYS',
-                       results: [[path: 'clean-allure-results']]
-            }
-        }
+      stage('Generate Allure Report') {
+    steps {
+        allure includeProperties: false,
+               jdk: '',
+               reportBuildPolicy: 'ALWAYS',
+               commandline: 'allure', // <-- This should match the tool name in Jenkins
+               results: [[path: 'clean-allure-results']]
     }
-
+}
     post {
         always {
             echo 'Stopping and cleaning up Docker containers...'
