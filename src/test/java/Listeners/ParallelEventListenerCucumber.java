@@ -96,10 +96,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 	// Called once after all tests finish
 	private void handleTestRunFinished(TestRunFinished event) {
-		if (service != null && service.isRunning()) {
-			service.stop();
-			System.out.println("Appium Service stopped after all tests");
-		}
+		
 		report.flush();
 	}
 
@@ -231,7 +228,6 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 					FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
 					extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
 					extentTest.get().fail(event.getTestCase().getName() + " failed.");
-
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -242,27 +238,34 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	private void handleTestCaseFinished(TestCaseFinished event) {
 		System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
 		scenarioName.remove(); // Clean up
-
+if(event.getTestCase().getTags().contains("@Mobile")) {
 	
 			try {
 				if (mobileDrivers != null ) {
 					mobileDrivers.quit();
 					
 				}
+				if (service != null && service.isRunning()) {
+					service.stop();
+					System.out.println("Appium Service stopped after all tests");
+				}
 			} catch (Exception e) {
 				System.err.println("Failed to quit mobile driver: " + e.getMessage());
 			}
-
+}
+if(event.getTestCase().getTags().contains("@Web")) {
 			try {
 				if (drivers != null && drivers.get() != null) {
 					drivers.get().quit();
 					drivers.remove();
 				}
+				
+				
 			} catch (Exception e) {
 				System.err.println("Failed to quit web driver: " + e.getMessage());
 			}
 
 			System.out.println("Test case cleanup finished.");
 		}
-	
+	}
 }
