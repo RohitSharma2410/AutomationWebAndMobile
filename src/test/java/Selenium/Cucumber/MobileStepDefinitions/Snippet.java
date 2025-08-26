@@ -1,6 +1,6 @@
 package Selenium.Cucumber.MobileStepDefinitions;
 
-import static utilsClasses.MobileDriverUtils.clickElement;
+import static utilsClasses.MobileDriverUtils.*;
 import static utilsClasses.MobileDriverUtils.getMobileElement;
 import static utilsClasses.MobileDriverUtils.typeinToElement;
 
@@ -35,7 +35,7 @@ public class Snippet {
 	public void should_be_closed(String string) {
 		// Write code here that turns the phrase above into concrete actions
 		try {
-			getMobileElement(string);
+		Assert.assertTrue(getMobileElements(string).size()>1);
 			
 		} catch (java.util.NoSuchElementException _) {
 			

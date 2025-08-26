@@ -9,7 +9,7 @@ Feature: Mobile Login
     And  I click on mobile "wifibutton"
     And I enter "rohit" in "wifiinputtext" mobile field
     And I click on mobile button "Ok"
-    Then "wifiinputtext" should be closed
+    Then "totalelementscount" should be closed
     
 
 	
