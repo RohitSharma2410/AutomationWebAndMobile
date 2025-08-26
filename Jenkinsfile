@@ -76,11 +76,21 @@ parameters {
     }
 }
     post {
+		
         always {
             echo 'Stopping and cleaning up Docker containers...'
             dir('appium/docker') {
                 sh 'docker-compose down || true'
             }
+          
+        allure includeProperties: false,
+               jdk: '',
+               commandline: 'Allure',
+               reportBuildPolicy: 'ALWAYS',
+               results: [[path: 'clean-allure-results']]
+    }
+}
+
         }
         failure {
             echo 'Build or tests failed!'
