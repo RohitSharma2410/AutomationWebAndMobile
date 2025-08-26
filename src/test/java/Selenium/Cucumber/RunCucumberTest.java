@@ -12,7 +12,8 @@ import io.cucumber.testng.PickleWrapper;
 
 @CucumberOptions(features = { "src/test/resources/Selenium/Cucumber" }, glue = { "Selenium.Cucumber" },plugin = {  "json:target/cucumber-reports/Cucumber.json",
 				"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm",
-				"Listeners.ParallelEventListenerCucumber"
+				"Listeners.ParallelEventListenerCucumber", "pretty",
+		        "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
 				})
 public class RunCucumberTest extends AbstractTestNGCucumberTests {
 

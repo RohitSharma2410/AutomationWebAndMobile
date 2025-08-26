@@ -1,53 +1,18 @@
-
 pipeline {
     agent any
-  tools {
-maven 'M3'
-}
 
-environment {
-        COMPOSE_PROJECT_NAME = 'mytests'
+    environment {
+        DOCKER_COMPOSE_FILE = 'appium/docker/docker-compose.yml'
     }
 
     stages {
-        stage('Clone Repo') {
+        stage('Clone Repository') {
             steps {
-                git 'https://github.com/your-org/your-repo.git'
+                git credentialsId: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCtBpgMWcJ96STsrXQIQYw1CoO09NE5cQknXUx2TFwezlkeg2Jto7EQHwQTTswZ2eqF2PjSVWWTQzYaZRLbtYs/4ulE4TKuXEdTfe++sqX5OXW1dNI9v1L+ZYa/jzxPHp/swBc8zTPlGunZBE3jT720cgrzpYUKX+94tJYP3ezvM7HpLgCkyR9y8GlViISTVNyJreRH9gsY8eurv+OD2OKOq8pDgwlY8/ndf+50cIrZ9qoB0P4sj3pwoyJDErbi/BeZR2ghucG5IHEQ04cQSBqswHFW77b2LxHXbaVCAIsewBX8C/NaIxEHVA760tMoStqrGukyGcz9Ou2+5LRQUTiahGpqlcyfQLSC3imuX02i70MvSlk+914fbF1PTaRSl4SDGxmXbxJeRH6yPMQSUHrTcMRhAXBwr5yTD0nxGJLdD4KVbv0nm4oJA6lK+t2Af7e81Rur3/9XQJn51Kg1ChazdR4gnLo2g7DEyIoUFzLeas6thJN3hBNAO/z5wVNxzasICm/JzWxJX/HQM8cCpi5px0uiI1/jqKdJhY8vVLPLAoHtXmHHPbEFLkJhYRnKqK2kaKQJW5ol/BL6BfuKl+E2bF5NF1mleaYOD7lGXs1ZQYVFpfYQBrZYZPqUR/CPQf9Kg7ReTwINupcEI9p7BdtIWgrdCwpl7TEodWExAlmFRQ== testerrohitsharma@gmail.com', url: 'git@github.com:RohitSharma2410/AutomationWebAndMobile.git'
             }
         }
-        
-      
-        stage('Test') {
-            steps {
-                sh "mvn -D clean test"
-            }
-  
-            post {    
-               always {
-                    allure includeProperties:
-                     false,
-                     jdk: '',
-                     results: [[path: 'allure-results']]
-                }            
-                 
-                // If Maven was able to run the tests, even if some of the test
-                // failed, record the test results and archive the jar file.               
-                success {
-                publishHTML (target : [allowMissing: false,
- alwaysLinkToLastBuild: true,
- keepAll: true,
- reportDir: 'target/surefire-reports',
- reportFiles: 'SparkReport.html',
- reportName: 'My Reports',
- reportTitles: 'The Report'])
-            }
-        }
-    }
-}
 
-        
-
-        stage('Start Docker Grid + Appium') {
+        stage('Start Docker Services') {
             steps {
                 sh 'docker-compose up -d'
             }
@@ -55,15 +20,30 @@ environment {
 
         stage('Run Tests') {
             steps {
-                sh './gradlew test'  // or mvn test, or your actual command
+                // Customize this command based on your test runner
+                sh 'docker exec appium mvn clean test -Dtest=RunCucumberTest'
+            }
+        }
+        
+        stage('Allure Report') {
+            steps {
+                allure includeProperties: false, 
+                       jdk: '', 
+                       results: [[path: 'allure-results']] // Path to allure-results directory
             }
         }
 
-        stage('Teardown') {
+        stage('Stop Docker Services') {
             steps {
                 sh 'docker-compose down'
             }
         }
     }
 
-    
+    post {
+        always {
+            archiveArtifacts artifacts: '**/target/*.log', allowEmptyArchive: true
+            junit '**/target/surefire-reports/*.xml'
+        }
+    }
+}

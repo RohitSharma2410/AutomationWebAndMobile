@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: Selenium.Cucumber.RunCucumberTest
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 142.9 s -- in Selenium.Cucumber.RunCucumberTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 120.5 s -- in Selenium.Cucumber.RunCucumberTest

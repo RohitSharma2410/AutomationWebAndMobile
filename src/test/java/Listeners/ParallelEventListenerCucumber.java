@@ -1,5 +1,6 @@
 package Listeners;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -41,6 +42,8 @@ import io.cucumber.plugin.event.TestRunFinished;
 import io.cucumber.plugin.event.TestRunStarted;
 import io.cucumber.plugin.event.TestStepFinished;
 import io.cucumber.plugin.event.TestStepStarted;
+
+import io.qameta.allure.Allure;  // Added for Allure API
 
 import utilsClasses.PropertiesFIlesHelper;
 import utilsClasses.WebDriverUtils;
@@ -131,6 +134,8 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
         extentTest.set(report.createTest(event.getTestCase().getName()));
         extentTest.get().assignAuthor("Rohit Sharma");
 
+        // Start Allure test lifecycle - in Cucumber this is automatic but you can add labels etc here if needed
+
         try {
             if (gridUrl == null) {
                 gridUrl = URI.create("http://localhost:4444").toURL();
@@ -186,16 +191,33 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
         }
     }
 
-    private void handleTestStepFinished(TestStepFinished event) {
-        if (event.getResult().getStatus() == Status.FAILED) {
-            System.out.println("[FAIL] " + scenarioName.get() + ": " + event.getResult().getError());
-        }
-    }
-
     private void handleTestStepStarted(TestStepStarted event) {
         if (event.getTestStep() instanceof PickleStepTestStep) {
             PickleStepTestStep currentStep = (PickleStepTestStep) event.getTestStep();
-            System.out.println("Test Step started " + currentStep.getStep().getText());
+            String stepText = currentStep.getStep().getKeyword() + currentStep.getStep().getText();
+            System.out.println("Test Step started: " + stepText);
+
+            // Log step start in Allure (creates a step)
+            Allure.step(stepText);
+        }
+    }
+
+    private void handleTestStepFinished(TestStepFinished event) {
+        if (event.getResult().getStatus() == Status.FAILED) {
+            System.out.println("[FAIL] " + scenarioName.get() + ": " + event.getResult().getError());
+
+            // Capture screenshot for WebDriver
+            try {
+                if (drivers.get() != null) {
+                    TakesScreenshot ts = (TakesScreenshot) drivers.get();
+                    byte[] screenshotBytes = ts.getScreenshotAs(OutputType.BYTES);
+
+                    // Attach screenshot to Allure report
+                    Allure.addAttachment("Screenshot - Failed Step", new ByteArrayInputStream(screenshotBytes));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -211,6 +233,10 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
                     FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
                     extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
                     extentTest.get().fail(event.getTestCase().getName() + " failed.");
+
+                    // Attach screenshot also to Allure report
+                    byte[] screenshotBytes = ts.getScreenshotAs(OutputType.BYTES);
+                    Allure.addAttachment("Screenshot - Test Failed", new ByteArrayInputStream(screenshotBytes));
                 }
             }
         } catch (Exception e) {
