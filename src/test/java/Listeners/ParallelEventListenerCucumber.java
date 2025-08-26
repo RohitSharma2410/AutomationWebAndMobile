@@ -50,7 +50,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 	public static AppiumDriverLocalService service = null;
 	public static ThreadLocal<Scenario> scenarios = null;
-	public static ThreadLocal<AppiumDriver> mobileDrivers = null;
+	public static AppiumDriver mobileDrivers = null;
 	public static ThreadLocal<WebDriverUtils> webdriverUtils = null;
 	public static ThreadLocal<WebDriver> drivers = null;
 	public static ThreadLocal<WebDriverWait> wait = null;
@@ -66,7 +66,6 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	// Called once before all tests start
 	private void handleTestRunStarted(TestRunStarted event) {
 		scenarios = new ThreadLocal<>();
-		mobileDrivers = new ThreadLocal<>();
 		drivers = new ThreadLocal<>();
 		wait = new ThreadLocal<>();
 		js = new ThreadLocal<>();
@@ -191,11 +190,11 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 				try {
 					// Connect to already running Appium service
-					mobileDrivers.set(new AndroidDriver(URI.create("http://localhost:4725").toURL(), options));
+					mobileDrivers=new AndroidDriver(URI.create("http://localhost:4725").toURL(), options);
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
-				mobileDrivers.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+				mobileDrivers.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 				break;
 			default:
 				break;
@@ -245,9 +244,9 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 	
 			try {
-				if (mobileDrivers != null && mobileDrivers.get() != null) {
-					mobileDrivers.get().quit();
-					mobileDrivers.remove();
+				if (mobileDrivers != null ) {
+					mobileDrivers.quit();
+					
 				}
 			} catch (Exception e) {
 				System.err.println("Failed to quit mobile driver: " + e.getMessage());
