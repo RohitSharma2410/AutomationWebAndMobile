@@ -33,11 +33,17 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                sh 'mvn clean test'
-            }
-        }
+      stage('Run Web Tests') {
+    steps {
+        sh 'mvn test -Dcucumber.filter.tags="@Web"'
+    }
+}
+stage('Run Mobile Tests') {
+    steps {
+        sh 'mvn test -Dcucumber.filter.tags="@Mobile"'
+    }
+}
+
 
         stage('Clean Skipped Allure Results') {
             steps {
