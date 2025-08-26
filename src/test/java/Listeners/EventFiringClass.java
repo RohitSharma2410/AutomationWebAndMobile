@@ -8,7 +8,7 @@ public class EventFiringClass {
 	private EventFiringDecorator<WebDriver> eventfiring = null;
 
 	public EventFiringClass() {
-		eventfiring = new EventFiringDecorator<WebDriver>(new WebEventsListener());
+		eventfiring = new EventFiringDecorator<>(new WebEventsListener());
 
 	}
 

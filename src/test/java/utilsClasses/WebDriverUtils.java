@@ -22,7 +22,7 @@ import com.google.common.io.Files;
 
 public class WebDriverUtils {
 
-	public static WebElement returnElementAfterWaitCheck( String locator) {
+	public static WebElement returnElementAfterWaitCheck(String locator) {
 		WebElement element = null;
 		WebDriverWait wait = new WebDriverWait(drivers.get(), Duration.ofSeconds(30));
 		By by = returnBy(locator);
@@ -38,7 +38,7 @@ public class WebDriverUtils {
 		return element;
 	}
 
-	public static List<WebElement> returnElementsAfterWaitCheck( String locator) {
+	public static List<WebElement> returnElementsAfterWaitCheck(String locator) {
 		List<WebElement> elements = null;
 		WebDriverWait wait = new WebDriverWait(drivers.get(), Duration.ofSeconds(30));
 		By by = returnBy(locator);
@@ -61,7 +61,7 @@ public class WebDriverUtils {
 		return null;
 	}
 
-	public  void clickOnElement(WebDriver driver, String locator) {
+	public void clickOnElement(WebDriver driver, String locator) {
 		try {
 			returnElementAfterWaitCheck(locator).click();
 		} catch (Exception e) {
@@ -94,7 +94,7 @@ public class WebDriverUtils {
 
 	}
 
-	public static void storeScreenshot( String path) {
+	public static void storeScreenshot(String path) {
 		TakesScreenshot ts = (TakesScreenshot) drivers.get();
 
 		File file = ts.getScreenshotAs(OutputType.FILE);
@@ -112,30 +112,29 @@ public class WebDriverUtils {
 		return wait.until(ExpectedConditions.not(conditions));
 	}
 
-
-	public  static WebElement getElement(By locator) {
+	public static WebElement getElement(By locator) {
 		return drivers.get().findElement(locator);
 	}
 
 	public static WebElement getWebElement(String locator) {
-		System.out.println("locator is "+locator);
+		System.out.println("locator is " + locator);
 		String locatortype = pageObjects.getProperty(locator).toString().split("@@@")[0];
-		System.out.println(drivers.get().getCurrentUrl()+Thread.currentThread().getId());
+		System.out.println(drivers.get().getCurrentUrl() + Thread.currentThread().getId());
 		switch (locatortype) {
 		case "xpath":
-			System.out.println("locator value are "+pageObjects.getProperty(locator).toString().split("@@@")[1]);
+			System.out.println("locator value are " + pageObjects.getProperty(locator).toString().split("@@@")[1]);
 			return drivers.get().findElement(By.xpath(pageObjects.getProperty(locator).toString().split("@@@")[1]));
 		default:
 			return drivers.get().findElement(By.xpath(pageObjects.getProperty(locator).toString().split("@@@")[1]));
 		}
 	}
+
 	public static List<WebElement> getWebElements(String locator) {
-		System.out.println("locator is "+locator);
+		System.out.println("locator is " + locator);
 		String locatortype = pageObjects.getProperty(locator).toString().split("@@@")[0];
 		switch (locatortype) {
 		case "xpath":
-			System.out.println("locator value are "+pageObjects.getProperty(locator).toString().split("@@@")[1]);
-	
+			System.out.println("locator value are " + pageObjects.getProperty(locator).toString().split("@@@")[1]);
 
 			return drivers.get().findElements(By.xpath(pageObjects.getProperty(locator).toString().split("@@@")[1]));
 
@@ -145,6 +144,7 @@ public class WebDriverUtils {
 		}
 
 	}
+
 	public static WebElement getWebElementOnElement(String locator, WebElement element) {
 		String locatortype = pageObjects.getProperty(locator).toString().split("@@@")[0];
 		switch (locatortype) {
@@ -158,7 +158,8 @@ public class WebDriverUtils {
 
 	}
 
-	public static WebElement getWebElementWithUpdatedValue(String locator, String valueToReplace, String valueByReplace) {
+	public static WebElement getWebElementWithUpdatedValue(String locator, String valueToReplace,
+			String valueByReplace) {
 		String locatortype = pageObjects.getProperty(locator).toString().split("@@@")[0];
 		switch (locatortype) {
 		case "xpath":

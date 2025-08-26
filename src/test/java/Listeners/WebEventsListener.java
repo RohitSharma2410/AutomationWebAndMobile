@@ -24,8 +24,6 @@ import org.openqa.selenium.WindowType;
 import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.events.WebDriverListener;
 
-
-
 public class WebEventsListener implements WebDriverListener {
 
 	@Override
@@ -278,8 +276,6 @@ public class WebEventsListener implements WebDriverListener {
 		WebDriverListener.super.afterAnyWebElementCall(element, method, args, result);
 	}
 
-	
-
 	@Override
 	public void afterClick(WebElement element) {
 		// TODO Auto-generated method stub
@@ -406,7 +402,6 @@ public class WebEventsListener implements WebDriverListener {
 		// TODO Auto-generated method stub
 		WebDriverListener.super.afterFindElement(element, locator, result);
 //		TestBase.extentTest.get().info("Found web element " + locator);
-
 
 	}
 
@@ -709,7 +704,6 @@ public class WebEventsListener implements WebDriverListener {
 		// TODO Auto-generated method stub
 		WebDriverListener.super.afterImplicitlyWait(timeouts, duration);
 	}
-
 
 	@Override
 	public void beforePageLoadTimeout(Timeouts timeouts, Duration duration) {

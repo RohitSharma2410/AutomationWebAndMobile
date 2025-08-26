@@ -1,7 +1,7 @@
 package utilsClasses;
 
-public class CustomException extends Exception{
-	public CustomException(String message){
+public class CustomException extends Exception {
+	public CustomException(String message) {
 		super(message);
 	}
 
@@ -10,8 +10,5 @@ public class CustomException extends Exception{
 		// TODO Auto-generated method stub
 		return super.getMessage();
 	}
-	
-	
-	
 
 }
