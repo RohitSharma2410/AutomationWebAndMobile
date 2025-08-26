@@ -226,6 +226,12 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 					// Attach screenshot to Allure report
 					Allure.addAttachment("Screenshot - Failed Step", new ByteArrayInputStream(screenshotBytes));
+					File file = new File(
+							System.getProperty("user.dir") + "/screenshots/" + event.getTestCase().getName() + ".png");
+					FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
+					extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
+					extentTest.get().fail(event.getTestCase().getName() + " failed.");
+
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -237,25 +243,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
 		scenarioName.remove(); // Clean up
 
-		try {
-			if (event.getResult().getStatus() == Status.FAILED) {
-					TakesScreenshot ts = (TakesScreenshot) drivers.get();
-					File file = new File(
-							System.getProperty("user.dir") + "/screenshots/" + event.getTestCase().getName() + ".png");
-					FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
-					extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
-					extentTest.get().fail(event.getTestCase().getName() + " failed.");
-
-					// Attach screenshot also to Allure report
-					byte[] screenshotBytes = ts.getScreenshotAs(OutputType.BYTES);
-					try (ByteArrayInputStream bais = new ByteArrayInputStream(screenshotBytes)) {
-						Allure.addAttachment("Screenshot - Test Failed", bais);
-					}
-				}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
+	
 			try {
 				if (mobileDrivers != null && mobileDrivers.get() != null) {
 					mobileDrivers.get().quit();
@@ -276,5 +264,5 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 			System.out.println("Test case cleanup finished.");
 		}
-	}
+	
 }
