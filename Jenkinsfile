@@ -15,19 +15,19 @@ pipeline {
         string(name: 'TAGS', defaultValue: '@Web or @Mobile', description: 'Cucumber tags to execute')
     }
 
-    stages {
-       sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
-    checkout([
-        $class: 'GitSCM',
-        branches: [[name: '*/main']],
-        userRemoteConfigs: [[
-            url: 'git@github.com:RohitSharma2410/AutomationWebAndMobile.git',
-            credentialsId: '4470f16b-442d-4053-a0bf-835a2b08383e'
-        ]],
-        doGenerateSubmoduleConfigurations: false,
-        extensions: [[$class: 'WipeWorkspace']]  // Wipe workspace before checkout
-    ])
+    stage('Checkout') {
+    steps {
+        sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
+            sh '''
+                rm -rf *
+                git clone git@github.com:RohitSharma2410/AutomationWebAndMobile.git .
+                git checkout main
+                git log -1 --oneline
+            '''
+        }
+    }
 }
+
 
 
         stage('Clean Reports') {
