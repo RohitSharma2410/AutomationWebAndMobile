@@ -2,16 +2,19 @@ pipeline {
     agent any
 
     tools {
-        maven 'M3'  // Jenkins tool configuration name
+        maven 'M3'        // Jenkins Maven tool name
+        allure 'allure'   // Jenkins Allure tool name, make sure it matches your Jenkins configuration
     }
 
     environment {
         ANDROID_HOME = "/Users/rohitsharma/Library/Android/sdk"
         PATH = "/usr/local/bin:${env.ANDROID_HOME}/platform-tools:${env.ANDROID_HOME}/tools:${env.PATH}"
     }
-parameters {
+
+    parameters {
         string(name: 'TAGS', defaultValue: '@Web or @Mobile', description: 'Cucumber tags to execute')
     }
+
     stages {
         stage('Checkout') {
             steps {
@@ -35,62 +38,42 @@ parameters {
             }
         }
 
-      stage('Run Tests') {
-    steps {
-        script {
-            def tags = "${params.TAGS}"
-            def parallel = tags.contains("@Mobile") ? "none" : "methods"
-            def threads = tags.contains("@Mobile") ? "1" : "4"
-
-            sh """
-              mvn clean test \
-              -Dcucumber.filter.tags="${tags}" \
-              -Dparallel.mode="${parallel}" \
-              -Dparallel.threads="${threads}"
-            """
-        }
-    }
-}
-
-
-        stage('Clean Skipped Allure Results') {
+        stage('Run Tests') {
             steps {
-                sh '''
-                mkdir -p clean-allure-results
-                for file in allure-results/*.json; do
-                    if ! grep -q '"status":"skipped"' "$file"; then
-                        cp "$file" clean-allure-results/
-                    fi
-                done
-                '''
+                script {
+                    def tags = "${params.TAGS}"
+                    def parallel = tags.contains("@Mobile") ? "none" : "methods"
+                    def threads = tags.contains("@Mobile") ? "1" : "4"
+
+                    sh """
+                      mvn clean test \
+                      -Dcucumber.filter.tags="${tags}" \
+                      -Dparallel.mode="${parallel}" \
+                      -Dparallel.threads="${threads}"
+                    """
+                }
             }
         }
 
-      stage('Generate Allure Report') {
-    steps {
-        allure includeProperties: false,
-               jdk: '',
-               reportBuildPolicy: 'ALWAYS',
-               commandline: 'allure', // <-- This should match the tool name in Jenkins
-               results: [[path: 'clean-allure-results']]
+        // Removed Clean Skipped Allure Results stage
+
+        stage('Generate Allure Report') {
+            steps {
+                allure includeProperties: false,
+                       jdk: '',
+                       reportBuildPolicy: 'ALWAYS',
+                       commandline: 'allure',  // must match tool name configured in Jenkins
+                       results: [[path: 'allure-results']]
+            }
+        }
     }
-}
+
     post {
-		
         always {
             echo 'Stopping and cleaning up Docker containers...'
             dir('appium/docker') {
                 sh 'docker-compose down || true'
             }
-          
-        allure includeProperties: false,
-               jdk: '',
-               commandline: 'Allure',
-               reportBuildPolicy: 'ALWAYS',
-               results: [[path: 'clean-allure-results']]
-    }
-}
-
         }
         failure {
             echo 'Build or tests failed!'
