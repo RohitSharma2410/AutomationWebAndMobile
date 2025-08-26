@@ -7,7 +7,7 @@
         <methods>
           <include name="setUpClass"/>
           <include name="tearDownClass"/>
-          <include name="runScenario" invocation-numbers="1 2 3"/>
+          <include name="runScenario" invocation-numbers="0 1 2"/>
         </methods>
       </class> <!-- Selenium.Cucumber.RunCucumberTest -->
     </classes>

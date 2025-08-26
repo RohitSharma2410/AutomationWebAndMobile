@@ -1,5 +1,5 @@
 @Mobile
-Feature: Login
+Feature: Mobile Login
 
   Scenario: Basic Mobile automation feature
     Given I am on Mobile Dashboard page for app
