@@ -1,4 +1,4 @@
-package Selenium.Cucumber;
+package Selenium.Cucumber.WebSteps;
 
 import static Listeners.ParallelEventListenerCucumber.config;
 import static Listeners.ParallelEventListenerCucumber.drivers;

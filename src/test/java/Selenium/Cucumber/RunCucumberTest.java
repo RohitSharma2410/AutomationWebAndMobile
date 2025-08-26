@@ -14,7 +14,6 @@ public class RunCucumberTest extends AbstractTestNGCucumberTests {
 	@DataProvider(parallel = false)
 	public Object[][] scenarios() {
 
-		System.out.println(super.scenarios().length + "total ");
 //
 //		Arrays.sort(super.scenarios());
 		return super.scenarios();
