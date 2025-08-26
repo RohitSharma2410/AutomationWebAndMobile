@@ -90,20 +90,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		}
 
 		// Start Appium service once per entire test run if Android driver is configured
-		if ("android".equalsIgnoreCase(config.getProperty("mobiledriver").toString())&service == null || !service.isRunning()) {
-
-				String androidHome = "/Users/rohitsharma/Library/Android/sdk";
-				Map<String, String> env = new HashMap<>(System.getenv());
-				env.put("ANDROID_HOME", androidHome);
-				env.put("PATH", androidHome + "/platform-tools:" + env.get("PATH"));
-
-				service = new AppiumServiceBuilder().withEnvironment(env)
-						.withAppiumJS(new File("/usr/local/lib/node_modules/appium/build/lib/main.js"))
-						.withLogFile(new File("appium.log")).withTimeout(Duration.ofSeconds(60)).usingPort(4725)
-						.build();
-				service.start();
-				System.out.println("Appium Service started at port 4725");
-			}
+	
 
 	}
 
@@ -181,6 +168,20 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		}
 
 		if (event.getTestCase().getTags().contains("@Mobile")) {
+			if ("android".equalsIgnoreCase(config.getProperty("mobiledriver").toString())&service == null || !service.isRunning()) {
+
+				String androidHome = "/Users/rohitsharma/Library/Android/sdk";
+				Map<String, String> env = new HashMap<>(System.getenv());
+				env.put("ANDROID_HOME", androidHome);
+				env.put("PATH", androidHome + "/platform-tools:" + env.get("PATH"));
+
+				service = new AppiumServiceBuilder().withEnvironment(env)
+						.withAppiumJS(new File("/usr/local/lib/node_modules/appium/build/lib/main.js"))
+						.withLogFile(new File("appium.log")).withTimeout(Duration.ofSeconds(60)).usingPort(4725)
+						.build();
+				service.start();
+				System.out.println("Appium Service started at port 4725");
+			}
 			switch (config.getProperty("mobiledriver").toString().toLowerCase()) {
 			case "android":
 				UiAutomator2Options options = new UiAutomator2Options();
