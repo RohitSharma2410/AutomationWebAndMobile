@@ -216,19 +216,15 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                 
-      
-                    <parallel>methods</parallel>
-                    <useUnlimitedThreads>true</useUnlimitedThreads>
-                    <includes>**/*.Run*.java</includes>
-                    
-                    <properties>
-                        <property>
-                            <name>dataproviderthreadcount</name>
-                            <value>20</value>
-                        </property>
-                    </properties>
-                </configuration>
+              <includes>
+          <includes>**/*.Run*.java</includes>
+        </includes>
+        <parallel>${parallel.mode}</parallel>
+        <threadCount>${parallel.threads}</threadCount>
+         <systemPropertyVariables>
+            <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
+        </systemPropertyVariables>
+        </configuration>
             </plugin>
 
             <plugin>

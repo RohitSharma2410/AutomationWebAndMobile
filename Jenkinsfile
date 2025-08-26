@@ -9,7 +9,9 @@ pipeline {
         ANDROID_HOME = "/Users/rohitsharma/Library/Android/sdk"
         PATH = "/usr/local/bin:${env.ANDROID_HOME}/platform-tools:${env.ANDROID_HOME}/tools:${env.PATH}"
     }
-
+parameters {
+        string(name: 'TAGS', defaultValue: '@Web or @Mobile', description: 'Cucumber tags to execute')
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -33,14 +35,20 @@ pipeline {
             }
         }
 
-      stage('Run Web Tests') {
+      stage('Run Tests') {
     steps {
-        sh 'mvn test -Dcucumber.filter.tags="@Web"'
-    }
-}
-stage('Run Mobile Tests') {
-    steps {
-        sh 'mvn test -Dcucumber.filter.tags="@Mobile"'
+        script {
+            def tags = "${params.TAGS}"
+            def parallel = tags.contains("@Mobile") ? "none" : "methods"
+            def threads = tags.contains("@Mobile") ? "1" : "4"
+
+            sh """
+              mvn clean test \
+              -Dcucumber.filter.tags="${tags}" \
+              -Dparallel.mode="${parallel}" \
+              -Dparallel.threads="${threads}"
+            """
+        }
     }
 }
 
@@ -66,22 +74,6 @@ stage('Run Mobile Tests') {
                        results: [[path: 'clean-allure-results']]
             }
         }
-        stage('Archive Extent Report') {
-            steps {
-                archiveArtifacts artifacts: 'target/extent-report.html', fingerprint: true
-            }
-        }
-
-        stage('Publish Extent Report') {
-            steps {
-                publishHTML(target: [
-                    reportName: 'Extent Report',
-                    reportDir: 'target',
-                    reportFiles: 'extent-report.html',
-                    keepAll: true,
-                    alwaysLinkToLastBuild: true,
-                    allowMissing: false
-                ])
     }
 
     post {
