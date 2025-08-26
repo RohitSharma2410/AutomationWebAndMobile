@@ -77,6 +77,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
         scenarioName = new ThreadLocal<>();
         webdriverUtils = new ThreadLocal<>();
         report = new ExtentReports();
+        Allure.description("TEST RUN STARTED");
 
         try {
             config = new PropertiesFIlesHelper(System.getProperty("user.dir") + "/src/main/resources/config.properties");
@@ -128,6 +129,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     }
 
     private void handleTestCaseStarted(TestCaseStarted event) {
+    	Allure.description("Test Case Started " +event.getTestCase().getName() );
         scenarioName.set(event.getTestCase().getName());
         System.out.println("[START] " + scenarioName.get() + " on Thread " + Thread.currentThread().getId());
 
