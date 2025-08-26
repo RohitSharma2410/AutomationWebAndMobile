@@ -128,7 +128,6 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		Allure.description("Test Case Started " + event.getTestCase().getName());
 		scenarioName.set(event.getTestCase().getName());
 		System.out.println("[START] " + scenarioName.get() + " on Thread " + Thread.currentThread().getId());
-
 		extentTest.set(report.createTest(event.getTestCase().getName()));
 		extentTest.get().assignAuthor("Rohit Sharma");
 
