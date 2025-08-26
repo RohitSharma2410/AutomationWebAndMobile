@@ -37,7 +37,7 @@ public class Snippet {
 		try {
 			getMobileElement(string);
 			
-		} catch (NoSuchElementException _) {
+		} catch (java.util.NoSuchElementException _) {
 			
 		}
 
