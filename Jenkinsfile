@@ -60,6 +60,22 @@ pipeline {
                        results: [[path: 'clean-allure-results']]
             }
         }
+        stage('Archive Extent Report') {
+            steps {
+                archiveArtifacts artifacts: 'target/extent-report.html', fingerprint: true
+            }
+        }
+
+        stage('Publish Extent Report') {
+            steps {
+                publishHTML(target: [
+                    reportName: 'Extent Report',
+                    reportDir: 'target',
+                    reportFiles: 'extent-report.html',
+                    keepAll: true,
+                    alwaysLinkToLastBuild: true,
+                    allowMissing: false
+                ])
     }
 
     post {
