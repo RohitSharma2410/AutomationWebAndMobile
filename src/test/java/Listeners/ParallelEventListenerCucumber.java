@@ -23,6 +23,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
@@ -74,6 +75,9 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		scenarioName = new ThreadLocal<>();
 		webdriverUtils = new ThreadLocal<>();
 		report = new ExtentReports();
+		 ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter("extent-report.html");
+	       
+	        report.attachReporter(htmlReporter);
 		Allure.description("TEST RUN STARTED");
 		try {
 			config = new PropertiesFIlesHelper(
@@ -110,6 +114,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 			service.stop();
 			System.out.println("Appium Service stopped after all tests");
 		}
+		report.flush();
 	}
 
 	@Override
