@@ -214,6 +214,8 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	private void handleTestStepFinished(TestStepFinished event) {
 		if (event.getResult().getStatus() == Status.FAILED) {
 			System.out.println("[FAIL] " + scenarioName.get() + ": " + event.getResult().getError());
+			File file = new File(
+					System.getProperty("user.dir") + "/screenshots/" + event.getTestCase().getName() + ".png");
 
 			// Capture screenshot for WebDriver
 			try {
@@ -223,12 +225,10 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
 					// Attach screenshot to Allure report
 					Allure.addAttachment("Screenshot - Failed Step", new ByteArrayInputStream(screenshotBytes));
-					File file = new File(
-							System.getProperty("user.dir") + "/screenshots/" + event.getTestCase().getName() + ".png");
-					FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
-					extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
-					extentTest.get().fail(event.getTestCase().getName() + " failed.");
-				}
+										FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
+					}
+				extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
+				extentTest.get().fail(event.getTestCase().getName() + " failed.");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

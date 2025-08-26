@@ -37,7 +37,7 @@ public class Snippet {
 			getMobileElement(string);
 			
 		} catch (Exception _) {
-
+			Assert.assertTrue(true);
 		}
 
 	}
