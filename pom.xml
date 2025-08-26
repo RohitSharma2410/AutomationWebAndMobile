@@ -220,7 +220,8 @@
       
                     <parallel>methods</parallel>
                     <useUnlimitedThreads>true</useUnlimitedThreads>
-                    <includes>**/*.RunCucumber*.java</includes>
+                    <includes>**/*.RunCucumberTest.java</includes>
+                    <includes>**/*.RunCucumberTest2.java</includes>
                     <properties>
                         <property>
                             <name>dataproviderthreadcount</name>
