@@ -57,19 +57,15 @@ pipeline {
 
         // Removed Clean Skipped Allure Results stage
 
-        stage('Generate Allure Report') {
-            steps {
-                allure includeProperties: false,
-                       jdk: '',
-                       reportBuildPolicy: 'ALWAYS',
-                       commandline: 'allure',  // must match tool name configured in Jenkins
-                       results: [[path: 'allure-results']]
-            }
-        }
     }
 
     post {
         always {
+			   allure includeProperties: false,
+               jdk: '',
+               reportBuildPolicy: 'ALWAYS',
+               commandline: 'allure',
+               results: [[path: 'allure-results']]
             echo 'Stopping and cleaning up Docker containers...'
             dir('appium/docker') {
                 sh 'docker-compose down || true'
