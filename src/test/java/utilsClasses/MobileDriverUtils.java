@@ -18,17 +18,20 @@ public class MobileDriverUtils {
 		String locatorValue = mobileObject.getProperty(locatorName).toString().split("@@@")[1];
 		switch (locatorType.toLowerCase()) {
 		case "accessibilityid":
-			element = (mobileDrivers.get()).findElement(AppiumBy.accessibilityId(locatorValue));
+			element = (mobileDrivers).findElement(AppiumBy.accessibilityId(locatorValue));
 			break;
 		case "xpath":
-			element = (mobileDrivers.get()).findElement(By.xpath(locatorValue));
+			element = (mobileDrivers).findElement(By.xpath(locatorValue));
 			break;
 		case "androiduiautomator":
-			element = (mobileDrivers.get()).findElement(AppiumBy.androidUIAutomator(locatorValue));
+			element = (mobileDrivers).findElement(AppiumBy.androidUIAutomator(locatorValue));
 			break;
 		case "id":
-			element = (mobileDrivers.get()).findElement(By.id(locatorValue));
+			element = (mobileDrivers).findElement(By.id(locatorValue));
 			break;
+			default:
+				element = (mobileDrivers).findElement(By.xpath(locatorValue));
+break;
 		}
 
 		return element;
