@@ -1,1 +1,0 @@
-Assert DeleteElementis visible on page
