@@ -4,15 +4,17 @@ import static Listeners.ParallelEventListenerCucumber.mobileDrivers;
 import static Listeners.ParallelEventListenerCucumber.mobileObject;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
 import io.appium.java_client.AppiumBy;
+import io.qameta.allure.Allure;
 
 public class MobileDriverUtils {
 
 	public static WebElement getMobileElement(String locatorName) {
 		WebElement element = null;
-
+try {
 		System.out.println(mobileObject.getProperty(locatorName).toString() + "value of whole locator");
 		String locatorType = mobileObject.getProperty(locatorName).toString().split("@@@")[0];
 		String locatorValue = mobileObject.getProperty(locatorName).toString().split("@@@")[1];
@@ -33,7 +35,10 @@ public class MobileDriverUtils {
 				element = (mobileDrivers).findElement(By.xpath(locatorValue));
 break;
 		}
-
+}
+catch(NoSuchElementException _) {
+Allure.description("No Locator found");
+}
 		return element;
 
 	}

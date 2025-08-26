@@ -4,6 +4,7 @@ import static utilsClasses.MobileDriverUtils.clickElement;
 import static utilsClasses.MobileDriverUtils.getMobileElement;
 import static utilsClasses.MobileDriverUtils.typeinToElement;
 
+import org.openqa.selenium.NoSuchElementException;
 import org.testng.Assert;
 
 import io.cucumber.java.en.Given;
@@ -36,8 +37,8 @@ public class Snippet {
 		try {
 			getMobileElement(string);
 			
-		} catch (Exception _) {
-			Assert.assertTrue(true);
+		} catch (NoSuchElementException _) {
+			
 		}
 
 	}
