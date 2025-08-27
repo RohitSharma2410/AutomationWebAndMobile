@@ -112,8 +112,6 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		publisher.registerHandlerFor(TestStepFinished.class, this::handleTestStepFinished);
 		publisher.registerHandlerFor(TestCaseFinished.class, this::handleTestCaseFinished);
 	}
-
-
 	private void handleTestCaseStarted(TestCaseStarted event) {
 	    Allure.description("Test Case Started " + event.getTestCase().getName());
 	    scenarioName.set(event.getTestCase().getName());
@@ -135,7 +133,6 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	    System.out.println("Connecting to Selenium Grid at: " + gridUrl);
 
 	    if (event.getTestCase().getTags().contains("@Web")) {
-	        // Check connectivity to Selenium Grid before creating driver
 	        if (!isSeleniumGridAvailable(gridUrl)) {
 	            throw new RuntimeException("Selenium Grid not reachable at " + gridUrl);
 	        }
@@ -144,9 +141,8 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	            case "chrome":
 	                ChromeOptions options = new ChromeOptions();
 	                options.setAcceptInsecureCerts(true);
-	                // Simplify options for better compatibility
 	                options.addArguments("--headless=new");
-	                // Commenting these out for debugging; add back if needed
+	                // temporarily commented out to avoid issues:
 	                // options.addArguments("--disable-gpu");
 	                // options.addArguments("--no-sandbox");
 	                options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
@@ -175,17 +171,13 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	        wait.set(new WebDriverWait(drivers.get(), Duration.ofSeconds(30)));
 	    }
 
-	    // ... rest of your method for mobile drivers ...
+	    // your existing mobile driver code unchanged ...
 	}
 
-	/**
-	 * Utility method to check if Selenium Grid is reachable before driver creation.
-	 * You can customize timeout as needed.
-	 */
 	private boolean isSeleniumGridAvailable(URL gridUrl) {
 	    try {
 	        HttpURLConnection connection = (HttpURLConnection) gridUrl.openConnection();
-	        connection.setConnectTimeout(3000); // 3 seconds timeout
+	        connection.setConnectTimeout(3000);
 	        connection.setReadTimeout(3000);
 	        connection.setRequestMethod("GET");
 	        int responseCode = connection.getResponseCode();
@@ -197,7 +189,6 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 	    }
 	}
 
-	
 	private void handleTestStepStarted(TestStepStarted event) {
 		if (event.getTestStep() instanceof PickleStepTestStep) {
 			PickleStepTestStep currentStep = (PickleStepTestStep) event.getTestStep();
