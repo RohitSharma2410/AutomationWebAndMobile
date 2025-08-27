@@ -72,22 +72,25 @@ pipeline {
                 }
             }
         }
+
+        stage('Generate Report & Cleanup') {
+            steps {
+                echo 'Generating Allure report...'
+                allure includeProperties: false,
+                       jdk: '',
+                       reportBuildPolicy: 'ALWAYS',
+                       commandline: 'allure',
+                       results: [[path: 'allure-results']]
+
+                echo 'Stopping Appium Docker container...'
+                dir('appium/docker') {
+                    sh 'docker-compose down || true'
+                }
+            }
+        }
     }
 
     post {
-        always {
-            echo 'Generating Allure report...'
-            allure includeProperties: false,
-                   jdk: '',
-                   reportBuildPolicy: 'ALWAYS',
-                   commandline: 'allure',
-                   results: [[path: 'allure-results']]
-
-            echo 'Stopping Appium Docker container...'
-            dir('appium/docker') {
-                sh 'docker-compose down || true'
-            }
-        }
         failure {
             echo 'Build or tests failed!'
         }
