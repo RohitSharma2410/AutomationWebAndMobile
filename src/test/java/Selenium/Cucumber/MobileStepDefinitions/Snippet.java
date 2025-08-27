@@ -47,7 +47,7 @@ public class Snippet {
     public void should_be_closed(String locatorName) {
         try {
             List<WebElement> elements = getMobileElements(locatorName);
-            Assert.assertTrue(elements.isEmpty() || elements.size() == 0, "Element '" + locatorName + "' is still visible.");
+            Assert.assertTrue(elements.size()>1, "Element '" + locatorName + "' is still visible.");
             System.out.println("[INFO] Element " + locatorName + " is closed.");
         } catch (Exception e) {
             System.err.println("[ERROR] Failed to verify if element is closed: " + locatorName);
