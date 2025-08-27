@@ -1,22 +1,20 @@
 pipeline {
-    agent
-
-docker {
-            image 'maven:3.8.4-jdk-11'  // or your build image
-            args '--network=selenium-grid-net'  // Connect to Selenium Docker network
+    agent {
+        docker {
+            image 'maven:3.8.4-jdk-11'
+            args '--network=selenium-grid-net'
         }
     }
-    environment {
-        SELENIUM_GRID_URL = 'http://selenium-hub:4444'  // Docker container hostname of Selenium Hub
-    }
-    tools {
-        maven 'M3'        // Jenkins Maven tool name
-        allure 'allure'   // Jenkins Allure tool name
-    }
 
     environment {
+        SELENIUM_GRID_URL = 'http://selenium-hub:4444'
         ANDROID_HOME = "/Users/rohitsharma/Library/Android/sdk"
         PATH = "/usr/local/bin:${env.ANDROID_HOME}/platform-tools:${env.ANDROID_HOME}/tools:${env.PATH}"
+    }
+
+    tools {
+        maven 'M3'
+        allure 'allure'
     }
 
     parameters {
@@ -35,7 +33,7 @@ docker {
                             url: 'git@github.com:RohitSharma2410/AutomationWebAndMobile.git',
                             credentialsId: '4470f16b-442d-4053-a0bf-835a2b08383e'
                         ]],
-                        extensions: [[$class: 'WipeWorkspace']]  // Clean workspace before checkout
+                        extensions: [[$class: 'WipeWorkspace']]
                     ])
                 }
             }
