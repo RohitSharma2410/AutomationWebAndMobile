@@ -15,75 +15,91 @@ import io.qameta.allure.Allure;
 
 public class MobileDriverUtils {
 
-	public static WebElement getMobileElement(String locatorName) {
-		WebElement element = null;
-try {
-		System.out.println(mobileObject.getProperty(locatorName).toString() + "value of whole locator");
-		String locatorType = mobileObject.getProperty(locatorName).toString().split("@@@")[0];
-		String locatorValue = mobileObject.getProperty(locatorName).toString().split("@@@")[1];
-		switch (locatorType.toLowerCase()) {
-		case "accessibilityid":
-			element = (mobileDrivers).findElement(AppiumBy.accessibilityId(locatorValue));
-			break;
-		case "xpath":
-			element = (mobileDrivers).findElement(By.xpath(locatorValue));
-			break;
-		case "androiduiautomator":
-			element = (mobileDrivers).findElement(AppiumBy.androidUIAutomator(locatorValue));
-			break;
-		case "id":
-			element = (mobileDrivers).findElement(By.id(locatorValue));
-			break;
-			default:
-				element = (mobileDrivers).findElement(By.xpath(locatorValue));
-break;
-		}
-}
-catch(NoSuchElementException _) {
-Allure.description("No Locator found");
-}
-		return element;
+    public static WebElement getMobileElement(String locatorName) {
+        WebElement element = null;
+        try {
+            String rawLocator = mobileObject.getProperty(locatorName).toString();
+            System.out.println(rawLocator + " - value of whole locator");
 
-	}
+            String locatorType = rawLocator.split("@@@")[0].trim().toLowerCase();
+            String locatorValue = rawLocator.split("@@@")[1].trim();
 
-	public static List<WebElement> getMobileElements(String locatorName) {
-		List<WebElement> elements = new ArrayList<>();
-try {
-		System.out.println(mobileObject.getProperty(locatorName).toString() + "value of whole locator");
-		String locatorType = mobileObject.getProperty(locatorName).toString().split("@@@")[0];
-		String locatorValue = mobileObject.getProperty(locatorName).toString().split("@@@")[1];
-		switch (locatorType.toLowerCase()) {
-		case "accessibilityid":
-			elements = (mobileDrivers).findElements(AppiumBy.accessibilityId(locatorValue));
-			break;
-		case "xpath":
-			elements = (mobileDrivers).findElements(By.xpath(locatorValue));
-			break;
-		case "androiduiautomator":
-			elements = (mobileDrivers).findElements(AppiumBy.androidUIAutomator(locatorValue));
-			break;
-		case "id":
-			elements = (mobileDrivers).findElements(By.id(locatorValue));
-			break;
-			default:
-				elements = (mobileDrivers).findElements(By.xpath(locatorValue));
-break;
-		}
-}
-catch(NoSuchElementException _) {
-Allure.description("No Locator found");
-}
-		return elements;
+            switch (locatorType) {
+                case "accessibilityid":
+                    element = mobileDrivers.get().findElement(AppiumBy.accessibilityId(locatorValue));
+                    break;
+                case "xpath":
+                    element = mobileDrivers.get().findElement(By.xpath(locatorValue));
+                    break;
+                case "androiduiautomator":
+                    element = mobileDrivers.get().findElement(AppiumBy.androidUIAutomator(locatorValue));
+                    break;
+                case "id":
+                    element = mobileDrivers.get().findElement(By.id(locatorValue));
+                    break;
+                default:
+                    element = mobileDrivers.get().findElement(By.xpath(locatorValue));
+                    break;
+            }
+        } catch (NoSuchElementException e) {
+            Allure.description("❌ No locator found: " + locatorName);
+            System.err.println("NoSuchElementException: Could not locate " + locatorName);
+        } catch (Exception e) {
+            Allure.description("❌ Error locating element: " + locatorName + " - " + e.getMessage());
+            e.printStackTrace();
+        }
 
-	}
-	public static void clickElement(String locator) {
-		getMobileElement(locator).click();
-	}
+        return element;
+    }
 
-	public static void typeinToElement(String locator, String type) {
-		getMobileElement(locator).sendKeys(type);
+    public static List<WebElement> getMobileElements(String locatorName) {
+        List<WebElement> elements = new ArrayList<>();
+        try {
+            String rawLocator = mobileObject.getProperty(locatorName).toString();
+            System.out.println(rawLocator + " - value of whole locator");
 
+            String locatorType = rawLocator.split("@@@")[0].trim().toLowerCase();
+            String locatorValue = rawLocator.split("@@@")[1].trim();
 
-	}
+            switch (locatorType) {
+                case "accessibilityid":
+                    elements = mobileDrivers.get().findElements(AppiumBy.accessibilityId(locatorValue));
+                    break;
+                case "xpath":
+                    elements = mobileDrivers.get().findElements(By.xpath(locatorValue));
+                    break;
+                case "androiduiautomator":
+                    elements = mobileDrivers.get().findElements(AppiumBy.androidUIAutomator(locatorValue));
+                    break;
+                case "id":
+                    elements = mobileDrivers.get().findElements(By.id(locatorValue));
+                    break;
+                default:
+                    elements = mobileDrivers.get().findElements(By.xpath(locatorValue));
+                    break;
+            }
+        } catch (NoSuchElementException e) {
+            Allure.description("❌ No locator found: " + locatorName);
+            System.err.println("NoSuchElementException: Could not locate elements for " + locatorName);
+        } catch (Exception e) {
+            Allure.description("❌ Error locating elements: " + locatorName + " - " + e.getMessage());
+            e.printStackTrace();
+        }
 
+        return elements;
+    }
+
+    public static void clickElement(String locatorName) {
+        WebElement element = getMobileElement(locatorName);
+        if (element != null) {
+            element.click();
+        }
+    }
+
+    public static void typeIntoElement(String locatorName, String input) {
+        WebElement element = getMobileElement(locatorName);
+        if (element != null) {
+            element.sendKeys(input);
+        }
+    }
 }
