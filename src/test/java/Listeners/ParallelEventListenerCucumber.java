@@ -239,53 +239,38 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 			}
 		}
 	}
+
 	private void handleTestCaseFinished(TestCaseFinished event) {
-	    System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
+		System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
+		scenarioName.remove(); // Clean up
+if(event.getTestCase().getTags().contains("@Mobile")) {
+	
+			try {
+				if (mobileDrivers != null ) {
+					mobileDrivers.quit();
+					
+				}
+				if (service != null && service.isRunning()) {
+					service.stop();
+					System.out.println("Appium Service stopped after all tests");
+				}
+			} catch (Exception e) {
+				System.err.println("Failed to quit mobile driver: " + e.getMessage());
+			}
+}
+if(event.getTestCase().getTags().contains("@Web")) {
+			try {
+				if (drivers != null && drivers.get() != null) {
+					drivers.get().quit();
+					drivers.remove();
+				}
+				
+				
+			} catch (Exception e) {
+				System.err.println("Failed to quit web driver: " + e.getMessage());
+			}
 
-	    try {
-	        if (event.getResult().getStatus() == Status.FAILED) {
-	            Throwable error = event.getResult().getError();
-	            String message = (error != null) ? error.getMessage() : "Unknown failure";
-
-	            extentTest.get().fail("Scenario failed: " + scenarioName.get() + "\n" + message);
-	        } else if (event.getResult().getStatus() == Status.PASSED) {
-	            extentTest.get().pass("Scenario passed: " + scenarioName.get());
-	        } else {
-	            extentTest.get().skip("Scenario skipped or inconclusive: " + scenarioName.get());
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-
-	    // Cleanup
-	    scenarioName.remove();
-
-	    if (event.getTestCase().getTags().contains("@Mobile")) {
-	        try {
-	            if (mobileDrivers != null) {
-	                mobileDrivers.quit();
-	            }
-	            if (service != null && service.isRunning()) {
-	                service.stop();
-	                System.out.println("Appium Service stopped after all tests");
-	            }
-	        } catch (Exception e) {
-	            System.err.println("Failed to quit mobile driver: " + e.getMessage());
-	        }
-	    }
-
-	    if (event.getTestCase().getTags().contains("@Web")) {
-	        try {
-	            if (drivers != null && drivers.get() != null) {
-	                drivers.get().quit();
-	                drivers.remove();
-	            }
-	        } catch (Exception e) {
-	            System.err.println("Failed to quit web driver: " + e.getMessage());
-	        }
-
-	        System.out.println("Test case cleanup finished.");
-	    }
+			System.out.println("Test case cleanup finished.");
+		}
 	}
-
 }
