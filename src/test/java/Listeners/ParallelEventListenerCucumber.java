@@ -2,6 +2,7 @@ package Listeners;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -112,99 +113,91 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 		publisher.registerHandlerFor(TestCaseFinished.class, this::handleTestCaseFinished);
 	}
 
+
 	private void handleTestCaseStarted(TestCaseStarted event) {
-		Allure.description("Test Case Started " + event.getTestCase().getName());
-		scenarioName.set(event.getTestCase().getName());
-		System.out.println("[START] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
-		extentTest.set(report.createTest(event.getTestCase().getName()));
-		extentTest.get().assignAuthor("Rohit Sharma");
+	    Allure.description("Test Case Started " + event.getTestCase().getName());
+	    scenarioName.set(event.getTestCase().getName());
+	    System.out.println("[START] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
+	    extentTest.set(report.createTest(event.getTestCase().getName()));
+	    extentTest.get().assignAuthor("Rohit Sharma");
 
-		// Start Allure test lifecycle - in Cucumber this is automatic but you can add
-		// labels etc here if needed
+	    try {
+	        String gridUrlEnv = System.getenv("SELENIUM_GRID_URL");
+	        if (gridUrlEnv == null || gridUrlEnv.isEmpty()) {
+	            gridUrlEnv = "http://localhost:4444";  // default for local runs
+	        }
+	        gridUrl = URI.create(gridUrlEnv).toURL();
+	    } catch (MalformedURLException e) {
+	        e.printStackTrace();
+	        throw new RuntimeException("Invalid SELENIUM_GRID_URL: " + e.getMessage());
+	    }
 
-		try {
-			
-			    String gridUrlEnv = System.getenv("SELENIUM_GRID_URL");
-			    if (gridUrlEnv == null || gridUrlEnv.isEmpty()) {
-			        gridUrlEnv = "http://localhost:4444";  // default for local runs
-			    }
-			    gridUrl = URI.create(gridUrlEnv).toURL();
-			} 
+	    System.out.println("Connecting to Selenium Grid at: " + gridUrl);
 
-		 catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+	    if (event.getTestCase().getTags().contains("@Web")) {
+	        // Check connectivity to Selenium Grid before creating driver
+	        if (!isSeleniumGridAvailable(gridUrl)) {
+	            throw new RuntimeException("Selenium Grid not reachable at " + gridUrl);
+	        }
 
-		if (event.getTestCase().getTags().contains("@Web")) {
-			switch (config.getProperty("webdriver").toString().toLowerCase()) {
-			case "chrome":
-				ChromeOptions options = new ChromeOptions();
-				options.setAcceptInsecureCerts(true);
-				options.addArguments("--headless=new");
-				options.addArguments("--disable-gpu");
-				options.addArguments("--no-sandbox");
-				options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
-				drivers.set(new RemoteWebDriver(gridUrl, options));
-				break;
-			case "firefox":
-				FirefoxOptions foptions = new FirefoxOptions();
-				foptions.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
-				drivers.set(new FirefoxDriver(foptions));
-				break;
-				default:
-					options = new ChromeOptions();
-					options.setAcceptInsecureCerts(true);
-					options.addArguments("--headless=new");
-					options.addArguments("--disable-gpu");
-					options.addArguments("--no-sandbox");
-					options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
-					drivers.set(new RemoteWebDriver(gridUrl, options));
-					break;
-			}
-			drivers.set(new EventFiringClass().getDriver(drivers.get()));
-			drivers.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
-			drivers.get().get(config.getProperty("appurl").toString());
-			drivers.get().manage().window().maximize();
-			js.set((JavascriptExecutor) drivers.get());
-			wait.set(new WebDriverWait(drivers.get(), Duration.ofSeconds(30)));
-		}
+	        switch (config.getProperty("webdriver").toString().toLowerCase()) {
+	            case "chrome":
+	                ChromeOptions options = new ChromeOptions();
+	                options.setAcceptInsecureCerts(true);
+	                // Simplify options for better compatibility
+	                options.addArguments("--headless=new");
+	                // Commenting these out for debugging; add back if needed
+	                // options.addArguments("--disable-gpu");
+	                // options.addArguments("--no-sandbox");
+	                options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
+	                drivers.set(new RemoteWebDriver(gridUrl, options));
+	                break;
 
-		if (event.getTestCase().getTags().contains("@Mobile")) {
-			if ("android".equalsIgnoreCase(config.getProperty("mobiledriver").toString())&service == null || !service.isRunning()) {
+	            case "firefox":
+	                FirefoxOptions foptions = new FirefoxOptions();
+	                foptions.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
+	                drivers.set(new FirefoxDriver(foptions));
+	                break;
 
-				String androidHome = "/Users/rohitsharma/Library/Android/sdk";
-				Map<String, String> env = new HashMap<>(System.getenv());
-				env.put("ANDROID_HOME", androidHome);
-				env.put("PATH", androidHome + "/platform-tools:" + env.get("PATH"));
+	            default:
+	                options = new ChromeOptions();
+	                options.setAcceptInsecureCerts(true);
+	                options.addArguments("--headless=new");
+	                options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.IGNORE);
+	                drivers.set(new RemoteWebDriver(gridUrl, options));
+	                break;
+	        }
+	        drivers.set(new EventFiringClass().getDriver(drivers.get()));
+	        drivers.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
+	        drivers.get().get(config.getProperty("appurl").toString());
+	        drivers.get().manage().window().maximize();
+	        js.set((JavascriptExecutor) drivers.get());
+	        wait.set(new WebDriverWait(drivers.get(), Duration.ofSeconds(30)));
+	    }
 
-				service = new AppiumServiceBuilder().withEnvironment(env)
-						.withAppiumJS(new File("/usr/local/lib/node_modules/appium/build/lib/main.js"))
-						.withLogFile(new File("appium.log")).withTimeout(Duration.ofSeconds(60)).usingPort(4725)
-						.build();
-				service.start();
-				System.out.println("Appium Service started at port 4725");
-			}
-			switch (config.getProperty("mobiledriver").toString().toLowerCase()) {
-			case "android":
-				UiAutomator2Options options = new UiAutomator2Options();
-				options.setDeviceName("pixel7");
-				options.setAutomationName("UIAutomator2");
-				options.setApp("/Users/rohitsharma/eclipse-workspace/Appium/ApiDemos-debug.apk");
-
-				try {
-					// Connect to already running Appium service
-					mobileDrivers=new AndroidDriver(URI.create("http://localhost:4725").toURL(), options);
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-				mobileDrivers.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-				break;
-			default:
-				break;
-			}
-		}
+	    // ... rest of your method for mobile drivers ...
 	}
 
+	/**
+	 * Utility method to check if Selenium Grid is reachable before driver creation.
+	 * You can customize timeout as needed.
+	 */
+	private boolean isSeleniumGridAvailable(URL gridUrl) {
+	    try {
+	        HttpURLConnection connection = (HttpURLConnection) gridUrl.openConnection();
+	        connection.setConnectTimeout(3000); // 3 seconds timeout
+	        connection.setReadTimeout(3000);
+	        connection.setRequestMethod("GET");
+	        int responseCode = connection.getResponseCode();
+	        System.out.println("Selenium Grid response code: " + responseCode);
+	        return (responseCode == 200 || responseCode == 301 || responseCode == 302);
+	    } catch (Exception e) {
+	        System.err.println("Could not connect to Selenium Grid: " + e.getMessage());
+	        return false;
+	    }
+	}
+
+	
 	private void handleTestStepStarted(TestStepStarted event) {
 		if (event.getTestStep() instanceof PickleStepTestStep) {
 			PickleStepTestStep currentStep = (PickleStepTestStep) event.getTestStep();
