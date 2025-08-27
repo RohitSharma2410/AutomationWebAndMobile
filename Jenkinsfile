@@ -1,11 +1,6 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.8.4-jdk-11'
-            args '--network=selenium-grid-net'
-        }
-    }
-
+    agent any  // or agent { label 'docker-enabled' }
+    
     environment {
         SELENIUM_GRID_URL = 'http://selenium-hub:4444'
         ANDROID_HOME = "/Users/rohitsharma/Library/Android/sdk"
@@ -24,54 +19,25 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out code...'
                 sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/main']],
-                        userRemoteConfigs: [[
-                            url: 'git@github.com:RohitSharma2410/AutomationWebAndMobile.git',
-                            credentialsId: '4470f16b-442d-4053-a0bf-835a2b08383e'
-                        ]],
-                        extensions: [[$class: 'WipeWorkspace']]
-                    ])
+                    checkout scm
                 }
             }
         }
 
         stage('Clean Reports') {
             steps {
-                echo 'Cleaning previous reports...'
                 sh 'rm -rf allure-results allure-report clean-allure-results'
             }
         }
 
         stage('Start Appium Container') {
             steps {
-                echo 'Starting Appium Docker container...'
                 dir('appium/docker') {
                     sh 'docker-compose up -d'
                 }
 
-                echo 'Waiting for Appium service to be ready...'
-                sh '''
-                    for i in {1..30}; do
-                      if curl -s http://localhost:4725/wd/hub/status | grep -q "ready"; then
-                        echo "Appium is ready"
-                        break
-                      else
-                        echo "Waiting for Appium to start..."
-                        sleep 2
-                      fi
-                    done
-                '''
-            }
-        }
-
-        stage('Check Selenium Grid Status') {
-            steps {
-                echo 'Checking Selenium Grid availability...'
-                sh 'curl -v http://selenium-hub:4444/status || true'
+                // Wait for Appium readiness, if needed
             }
         }
 
@@ -82,11 +48,7 @@ pipeline {
                     def parallel = tags.contains("@Mobile") ? "none" : "methods"
                     def threads = tags.contains("@Mobile") ? "1" : "4"
 
-                    echo "Running tests with tags: ${tags}"
-                    echo "Parallel mode: ${parallel}, Threads: ${threads}"
-
                     sh """
-                        set -x
                         mvn clean test \
                             -Dcucumber.filter.tags="${tags}" \
                             -Dparallel.mode="${parallel}" \
@@ -98,14 +60,12 @@ pipeline {
 
         stage('Generate Report & Cleanup') {
             steps {
-                echo 'Generating Allure report...'
                 allure includeProperties: false,
                        jdk: '',
                        reportBuildPolicy: 'ALWAYS',
                        commandline: 'allure',
                        results: [[path: 'allure-results']]
 
-                echo 'Stopping Appium Docker container...'
                 dir('appium/docker') {
                     sh 'docker-compose down || true'
                 }
