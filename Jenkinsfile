@@ -52,6 +52,26 @@ pipeline {
                 dir('appium/docker') {
                     sh 'docker-compose up -d'
                 }
+
+                echo 'Waiting for Appium service to be ready...'
+                sh '''
+                    for i in {1..30}; do
+                      if curl -s http://localhost:4725/wd/hub/status | grep -q "ready"; then
+                        echo "Appium is ready"
+                        break
+                      else
+                        echo "Waiting for Appium to start..."
+                        sleep 2
+                      fi
+                    done
+                '''
+            }
+        }
+
+        stage('Check Selenium Grid Status') {
+            steps {
+                echo 'Checking Selenium Grid availability...'
+                sh 'curl -v http://selenium-hub:4444/status || true'
             }
         }
 
@@ -63,11 +83,14 @@ pipeline {
                     def threads = tags.contains("@Mobile") ? "1" : "4"
 
                     echo "Running tests with tags: ${tags}"
+                    echo "Parallel mode: ${parallel}, Threads: ${threads}"
+
                     sh """
-                      mvn clean test \
-                      -Dcucumber.filter.tags="${tags}" \
-                      -Dparallel.mode="${parallel}" \
-                      -Dparallel.threads="${threads}"
+                        set -x
+                        mvn clean test \
+                            -Dcucumber.filter.tags="${tags}" \
+                            -Dparallel.mode="${parallel}" \
+                            -Dparallel.threads="${threads}"
                     """
                 }
             }
