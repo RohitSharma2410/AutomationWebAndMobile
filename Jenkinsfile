@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.8.4-jdk-11'
+            args '--network=selenium-grid-net'
+        }
+    }
 
     environment {
         SELENIUM_GRID_URL = 'http://selenium-hub:4444'
