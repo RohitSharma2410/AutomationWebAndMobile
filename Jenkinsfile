@@ -1,6 +1,14 @@
 pipeline {
-    agent any
+    agent
 
+docker {
+            image 'maven:3.8.4-jdk-11'  // or your build image
+            args '--network=selenium-grid-net'  // Connect to Selenium Docker network
+        }
+    }
+    environment {
+        SELENIUM_GRID_URL = 'http://selenium-hub:4444'  // Docker container hostname of Selenium Hub
+    }
     tools {
         maven 'M3'        // Jenkins Maven tool name
         allure 'allure'   // Jenkins Allure tool name
