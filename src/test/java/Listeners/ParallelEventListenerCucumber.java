@@ -182,7 +182,6 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
                     FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE), file);
                     extentTest.get().addScreenCaptureFromPath(file.getAbsolutePath());
                 }
-                extentTest.get().fail(event.getTestCase().getName() + " failed.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -191,7 +190,10 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
     private void handleTestCaseFinished(TestCaseFinished event) {
         System.out.println("[END] " + scenarioName.get() + " on Thread " + Thread.currentThread().getName());
-
+if(event.getResult().getStatus()==Status.FAILED||event.getResult().getError()!=null)
+{
+	extentTest.get().fail(event.getTestCase().getName());
+}
         if (event.getTestCase().getTags().contains("@Web")) {
             try {
                 if (drivers.get() != null) {
