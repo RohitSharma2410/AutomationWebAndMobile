@@ -36,7 +36,7 @@ import utilsClasses.WebDriverUtils;
 public class ParallelEventListenerCucumber implements ConcurrentEventListener, Plugin {
 
     public static AppiumDriverLocalService service = null;
-
+    public static final String BASE_URL = System.getProperty("base.url", "https://default.url");
     public static ThreadLocal<Scenario> scenarios = new ThreadLocal<>();
     public static ThreadLocal<AppiumDriver> mobileDrivers = new ThreadLocal<>();
     public static ThreadLocal<WebDriver> drivers = new ThreadLocal<>();
@@ -121,7 +121,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
             WebDriver driver = new RemoteWebDriver(gridUrl, options);
             drivers.set(new EventFiringClass().getDriver(driver));
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
-            driver.get(config.getProperty("appurl").toString());
+            driver.get(BASE_URL);
             driver.manage().window().maximize();
 
             js.set((JavascriptExecutor) driver);

@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven 'M3'        // Jenkins Maven tool name
-        allure 'allure'   // Jenkins Allure tool name
+        allure 'allure'    // Jenkins Allure tool name
     }
 
     environment {
@@ -55,13 +55,26 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
+                    // Define URLs per environment
+                    def envUrls = [
+                        SIT: "https://demo.applitools.com/",
+                        UAT: "https://uat.example.com"
+                    ]
+
+                    def selectedEnv = params.ENVIRONMENT
+                    def baseUrl = envUrls[selectedEnv]
+
                     def tags = "${params.TAGS}"
                     def parallel = tags.contains("@Mobile") ? "none" : "methods"
                     def threads = tags.contains("@Mobile") ? "1" : "4"
 
+                    echo "Running tests in environment: ${selectedEnv} with base URL: ${baseUrl}"
                     echo "Running tests with tags: ${tags}"
+
+                    // Pass base.url as system property to Maven
                     sh """
                       mvn clean test \
+                      -Dbase.url=${baseUrl} \
                       -Dcucumber.filter.tags="${tags}" \
                       -Dparallel.mode="${parallel}" \
                       -Dparallel.threads="${threads}"
