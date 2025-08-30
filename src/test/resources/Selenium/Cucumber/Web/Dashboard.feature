@@ -1,5 +1,6 @@
 @Web
 @Dashboard
+@Smoke
 Feature: Dashboard
 
   Scenario Outline: Verify Dashboard page
