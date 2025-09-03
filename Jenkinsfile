@@ -19,18 +19,21 @@ pipeline {
     }
 
     stages {
-    stage('Checkout') {
+ stage('Checkout') {
     steps {
         sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
             sh '''
-                echo "Pulling latest code..."
-                cd AutomationWebAndMobile || git clone git@github.com:RohitSharma2410/AutomationWebAndMobile.git
+                if [ ! -d "AutomationWebAndMobile/.git" ]; then
+                    git clone git@github.com:RohitSharma2410/AutomationWebAndMobile.git
+                fi
                 cd AutomationWebAndMobile
+                git checkout main
                 git pull origin main
             '''
         }
     }
 }
+
 
 
         stage('Clean Reports') {
