@@ -31,7 +31,12 @@ public class ApiSteps {
 		try {
 			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json").toString());
 			Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json");
-			datamaps.set(new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {}));
+			
+			Map<String, Object>dataObject=new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {});
+		System.out.println("request body is");
+			System.out.println(dataObject.toString());
+			
+			datamaps.set(dataObject);
 		}  catch (Exception e) {
 			System.out.println();
 		}

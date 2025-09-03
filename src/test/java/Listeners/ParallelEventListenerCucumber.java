@@ -175,6 +175,7 @@ response=new ThreadLocal<>();
         	request.get().baseUri(BASEURI);
         	request.get().contentType(ContentType.APPLICATION_JSON.toString());
         	request.get().log().all();
+        	
         }
     }
 
