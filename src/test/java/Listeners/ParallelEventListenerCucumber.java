@@ -120,6 +120,7 @@ response=new ThreadLocal<>();
         }
 
         if (event.getTestCase().getTags().contains("@Web")) {
+        	Allure.label("suite", "WEB Tests");
             if (!isSeleniumGridAvailable(gridUrl)) {
                 throw new RuntimeException("Selenium Grid not reachable at " + gridUrl);
             }
@@ -140,6 +141,7 @@ response=new ThreadLocal<>();
         }
 
         if (event.getTestCase().getTags().contains("@Mobile")) {
+        	Allure.label("suite", "Mobile Tests");
             if (service == null || !service.isRunning()) {
                 String androidHome = System.getenv("ANDROID_HOME");
                 Map<String, String> env = new HashMap<>(System.getenv());
@@ -171,6 +173,7 @@ response=new ThreadLocal<>();
             }
         }
         if (event.getTestCase().getTags().contains("@Api")) {
+        	Allure.label("suite", "Api Tests");
         	request.set(RestAssured.given());
         	System.out.println();
         	request.get().baseUri(BASEURI);
