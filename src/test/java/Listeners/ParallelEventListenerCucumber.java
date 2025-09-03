@@ -20,6 +20,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.aventstack.extentreports.*;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
@@ -32,6 +33,7 @@ import io.cucumber.plugin.event.*;
 import io.cucumber.plugin.event.Status;
 import io.qameta.allure.Allure;
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import utilsClasses.PropertiesFIlesHelper;
 import utilsClasses.WebDriverUtils;
@@ -41,12 +43,13 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     public static AppiumDriverLocalService service = null;
     public static final String BASE_URL = System.getProperty("base.url", "https://default.url");
     public static final String BASEURI = System.getProperty("baseURI", "");
-
+public static ThreadLocal<Map<String,Object>>datamaps=null;
     public static ThreadLocal<Scenario> scenarios = new ThreadLocal<>();
     public static ThreadLocal<AppiumDriver> mobileDrivers = new ThreadLocal<>();
     public static ThreadLocal<WebDriver> drivers = new ThreadLocal<>();
     public static ThreadLocal<WebDriverUtils> webdriverUtils = new ThreadLocal<>();
     public static ThreadLocal<WebDriverWait> wait = new ThreadLocal<>();
+    public static ThreadLocal<Response>response=null;
     public static ThreadLocal<JavascriptExecutor> js = new ThreadLocal<>();
     public static ThreadLocal<ExtentTest> extentTest = new ThreadLocal<>();
     public static ExtentReports report = null;
@@ -77,6 +80,8 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
         scenarioName = new ThreadLocal<>();
         webdriverUtils = new ThreadLocal<>();
 request=new ThreadLocal<>();
+datamaps=new ThreadLocal<>();
+response=new ThreadLocal<>();
         report = new ExtentReports();
         ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter("extent-report.html");
         report.attachReporter(htmlReporter);
@@ -169,7 +174,7 @@ request=new ThreadLocal<>();
         	request.set(RestAssured.given());
         	request.get().baseUri(BASEURI);
         	request.get().contentType(ContentType.APPLICATION_JSON.toString());
-    
+   
         }
     }
 

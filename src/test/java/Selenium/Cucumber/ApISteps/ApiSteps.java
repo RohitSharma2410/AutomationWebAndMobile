@@ -1,5 +1,109 @@
 package Selenium.Cucumber.ApISteps;
 
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.testng.Assert;
+
+import java.io.File;
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import static Listeners.ParallelEventListenerCucumber.*; 
 public class ApiSteps {
 
+	@Given("Preparing to call {string} api")
+	public void preparing_to_call_api(String string) {
+		// Write code here that turns the phrase above into concrete actions
+		try {
+			System.out.println(System.getProperty("user.dir/")+string+".json");
+			datamaps.set(new ObjectMapper().readValue(new File(System.getProperty("user.dir")+string+".json"), new TypeReference<Map<String, Object>>() {}));
+		}  catch (Exception e) {
+			System.out.println();
+		}
+	}
+
+	@When("api body parameter {string} is  {string}")
+	public void api_body_parameter_is(String string1,String string2) {
+		// Write code here that turns the phrase above into concrete actions
+		datamaps.get().put(string1,string2);
+		
+	}
+
+	@When("I call {string} with {string}")
+	public void i_call_api(String string,String string1) {
+		// Write code here that turns the phrase above into concrete actions
+		switch(string1.toLowerCase()) {
+		case "post":
+			response.set(request.get().when().post(string));
+			break;
+		case "put":
+			response.set(request.get().when().put(string));
+			break;	
+		case "get":
+			response.set(request.get().when().get(string));
+			break;
+		case "delete":
+			response.set(request.get().when().delete(string));
+			break;
+			default:
+				response.set(request.get().when().get(string));
+				break;
+		}
+		
+		
+	}
+
+	@Then("Response body should have {string}")
+	public void response_body_should_have(String string) {
+		// Write code here that turns the phrase above into concrete actions
+		Assert.assertTrue(response.get().body().asString().contains(string));
+	}
+
+	@Then("Response status should be <{int}>")
+	public void response_status_should_be(Integer int1) {
+		// Write code here that turns the phrase above into concrete actions
+		Assert.assertTrue(response.get().statusCode()==int1);
+	}
+
+	@Then("Response parameter size should be <{int}>")
+	public void response_parameter_size_should_be(Integer int1) {
+		// Write code here that turns the phrase above into concrete actions
+	
+	}
+
+	@Then("Response parameter {string} should exists")
+	public void response_parameter_should_exists(String string) {
+		// Write code here that turns the phrase above into concrete actions
+		JsonNode root = null;
+		try {
+			root = new ObjectMapper().readTree(response.get().body().asString());
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	Assert.assertTrue(root.get(string)!=null);
+	}
+
+	@Then("Response parameter {string} should be equal to {string}")
+	public void response_parameter_should_be_equal_to(String string, String string2) {
+		// Write code here that turns the phrase above into concrete actions
+		JsonNode root =null;
+		try {
+			root = new ObjectMapper().readTree(response.get().body().asString());
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+      Assert.assertTrue(root.get(string).textValue().equalsIgnoreCase(string2));
+	}
 }
