@@ -49,20 +49,20 @@ public class ApiSteps {
 		// Write code here that turns the phrase above into concrete actions
 		switch(string1.toLowerCase()) {
 		case "post":
-			response.set(request.get().when().post(string));
+			response.set(request.get().body(datamaps.get()).when().post(string));
 			
 			break;
 		case "put":
-			response.set(request.get().when().put(string));
+			response.set(request.get().body(datamaps.get()).when().put(string));
 			break;	
 		case "get":
-			response.set(request.get().when().get(string));
+			response.set(request.get().body(datamaps.get()).when().get(string));
 			break;
 		case "delete":
-			response.set(request.get().when().delete(string));
+			response.set(request.get().body(datamaps.get()).when().delete(string));
 			break;
 			default:
-				response.set(request.get().when().get(string));
+				response.set(request.get().body(datamaps.get()).when().get(string));
 				break;
 		}
 		response.get().then().log().all();
