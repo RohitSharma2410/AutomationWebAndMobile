@@ -27,7 +27,7 @@ public class ApiSteps {
 	public void preparing_to_call_api(String string) {
 		// Write code here that turns the phrase above into concrete actions
 		try {
-			System.out.println(System.getProperty("user.dir/")+string+".json");
+			System.out.println(System.getProperty("user.dir")+"/"+string+".json");
 			datamaps.set(new ObjectMapper().readValue(new File(System.getProperty("user.dir")+string+".json"), new TypeReference<Map<String, Object>>() {}));
 		}  catch (Exception e) {
 			System.out.println();
