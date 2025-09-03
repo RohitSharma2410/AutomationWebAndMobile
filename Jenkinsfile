@@ -14,7 +14,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TAGS', defaultValue: '@Web or @Mobile', description: 'Cucumber tags to execute')
+        string(name: 'TAGS', defaultValue: '@Mobile', description: 'Cucumber tags to execute')
         choice(name: 'ENVIRONMENT', choices: ['SIT', 'UAT'], description: 'Select target environment')
     }
 
@@ -58,12 +58,17 @@ pipeline {
                     // Define URLs per environment
                     def envUrls = [
                         SIT: "https://demo.applitools.com/",
-                        UAT: "https://uat.example.com"
+                        UAT: "https://uat.example.com",
+                       
                     ]
+                    def envbaseURIs=[
+						 SIT:"https://reqres.in/"
+						
+					]
 
                     def selectedEnv = params.ENVIRONMENT
                     def baseUrl = envUrls[selectedEnv]
-
+					def baseURI=envbaseURIs[selectedEnv]
                     def tags = "${params.TAGS}"
                     def parallel = tags.contains("@Mobile") ? "none" : "methods"
                     def threads = tags.contains("@Mobile") ? "1" : "4"
@@ -75,6 +80,7 @@ pipeline {
                     sh """
                       mvn clean test \
                       -Dbase.url=${baseUrl} \
+                      -Dbase.url=${baseURI} \
                       -Dcucumber.filter.tags="${tags}" \
                       -Dparallel.mode="${parallel}" \
                       -Dparallel.threads="${threads}"

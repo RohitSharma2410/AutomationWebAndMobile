@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.entity.ContentType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -30,6 +31,8 @@ import io.cucumber.plugin.*;
 import io.cucumber.plugin.event.*;
 import io.cucumber.plugin.event.Status;
 import io.qameta.allure.Allure;
+import io.restassured.RestAssured;
+import io.restassured.specification.RequestSpecification;
 import utilsClasses.PropertiesFIlesHelper;
 import utilsClasses.WebDriverUtils;
 
@@ -37,6 +40,8 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
     public static AppiumDriverLocalService service = null;
     public static final String BASE_URL = System.getProperty("base.url", "https://default.url");
+    public static final String BASEURI = System.getProperty("baseURI", "");
+
     public static ThreadLocal<Scenario> scenarios = new ThreadLocal<>();
     public static ThreadLocal<AppiumDriver> mobileDrivers = new ThreadLocal<>();
     public static ThreadLocal<WebDriver> drivers = new ThreadLocal<>();
@@ -49,6 +54,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     public static PropertiesFIlesHelper config = null;
     public static PropertiesFIlesHelper mobileObject = null;
     public static ThreadLocal<String> scenarioName = new ThreadLocal<>();
+    public static ThreadLocal<RequestSpecification>request=null;
 
     private static URL gridUrl = null;
 
@@ -70,7 +76,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
         js = new ThreadLocal<>();
         scenarioName = new ThreadLocal<>();
         webdriverUtils = new ThreadLocal<>();
-
+request=new ThreadLocal<>();
         report = new ExtentReports();
         ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter("extent-report.html");
         report.attachReporter(htmlReporter);
@@ -159,6 +165,12 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
                 throw new RuntimeException("Failed to create Appium driver.");
             }
         }
+        if (event.getTestCase().getTags().contains("@Api")) {
+        	request.set(RestAssured.given());
+        	request.get().baseUri(BASEURI);
+        	request.get().contentType(ContentType.APPLICATION_JSON.toString());
+    
+        }
     }
 
     private void handleTestStepStarted(TestStepStarted event) {
@@ -219,7 +231,9 @@ if(event.getResult().getStatus()==Status.FAILED||event.getResult().getError()!=n
                 System.err.println("Failed to quit mobile driver: " + e.getMessage());
             }
         }
-
+        if (event.getTestCase().getTags().contains("@Api")) {
+        	request.remove();
+        }
         scenarioName.remove();
     }
 
