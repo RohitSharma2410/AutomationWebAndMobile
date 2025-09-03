@@ -19,22 +19,19 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                echo 'Checking out code...'
-                sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/main']],
-                        userRemoteConfigs: [[
-                            url: 'git@github.com:RohitSharma2410/AutomationWebAndMobile.git',
-                            credentialsId: '4470f16b-442d-4053-a0bf-835a2b08383e'
-                        ]],
-                        extensions: [[$class: 'WipeWorkspace']]
-                    ])
-                }
-            }
+    stage('Checkout') {
+    steps {
+        sshagent(['4470f16b-442d-4053-a0bf-835a2b08383e']) {
+            sh '''
+                echo "Pulling latest code..."
+                cd AutomationWebAndMobile || git clone git@github.com:RohitSharma2410/AutomationWebAndMobile.git
+                cd AutomationWebAndMobile
+                git pull origin main
+            '''
         }
+    }
+}
+
 
         stage('Clean Reports') {
             steps {
