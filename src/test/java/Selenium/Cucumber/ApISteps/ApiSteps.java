@@ -1,6 +1,7 @@
 package Selenium.Cucumber.ApISteps;
 
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,7 +28,8 @@ public class ApiSteps {
 	public void preparing_to_call_api(String string) {
 		// Write code here that turns the phrase above into concrete actions
 		try {
-			System.out.println(System.getProperty("user.dir")+"/"+string+".json");
+			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/")+string.toLowerCase()+".json");
+			System.out.println(Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/")+string.toLowerCase()+".json");
 			datamaps.set(new ObjectMapper().readValue(new File(System.getProperty("user.dir")+string+".json"), new TypeReference<Map<String, Object>>() {}));
 		}  catch (Exception e) {
 			System.out.println();
