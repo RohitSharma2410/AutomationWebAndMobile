@@ -29,8 +29,8 @@ public class ApiSteps {
 	public void preparing_to_call_api(String string) {
 		// Write code here that turns the phrase above into concrete actions
 		try {
-			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string).toString());
-			Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string);
+			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string+".json").toString());
+			Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string+".json");
 			datamaps.set(new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {}));
 		}  catch (Exception e) {
 			System.out.println();
