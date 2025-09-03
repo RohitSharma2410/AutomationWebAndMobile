@@ -29,8 +29,8 @@ public class ApiSteps {
 	public void preparing_to_call_api(String string) {
 		// Write code here that turns the phrase above into concrete actions
 		try {
-			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string+".json").toString());
-			Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string+".json");
+			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json").toString());
+			Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json");
 			datamaps.set(new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {}));
 		}  catch (Exception e) {
 			System.out.println();
@@ -41,6 +41,7 @@ public class ApiSteps {
 	public void api_body_parameter_is(String string1,String string2) {
 		// Write code here that turns the phrase above into concrete actions
 		datamaps.get().put(string1,string2);
+		System.out.println(datamaps.get().toString());
 		
 	}
 
@@ -49,17 +50,16 @@ public class ApiSteps {
 		// Write code here that turns the phrase above into concrete actions
 		switch(string1.toLowerCase()) {
 		case "post":
-			response.set(request.get().body(datamaps.get()).when().post(string));
-			
+			response.set(request.get().log().all().body(datamaps.get()).when().post(string));
 			break;
 		case "put":
-			response.set(request.get().body(datamaps.get()).when().put(string));
+			response.set(request.get().log().all().body(datamaps.get()).when().put(string));
 			break;	
 		case "get":
-			response.set(request.get().body(datamaps.get()).when().get(string));
+			response.set(request.get().log().all().body(datamaps.get()).when().get(string));
 			break;
 		case "delete":
-			response.set(request.get().body(datamaps.get()).when().delete(string));
+			response.set(request.get().log().all().body(datamaps.get()).when().delete(string));
 			break;
 			default:
 				response.set(request.get().body(datamaps.get()).when().get(string));

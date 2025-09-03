@@ -1,19 +1,19 @@
 @Api
 Feature: Create User
 
-  Scenario Outline: Create user success 
+  Feature: Create user API
+
+  Scenario Outline: Create user success
     Given Preparing to call "Createuser" api
-    When api body parameter "name" is <name>
-    And api body parameter "job" is <job>
-    When I call "apiendpoint" with "method"
-    Then Response body should have ""
-    And Response status should be <201>
-   # And Response parameter "createdAt" should exists
-    And Response parameter "name" should be equal to <name>
-    And Response parameter "job" should be equal to <job>
-    
-   Examples:
-||name|| job||
-||"morpheus"||"leader"||
-    
-	
+    When API body parameter "name" is "<name>"
+    And API body parameter "job" is "<job>"
+    And I call "<apiendpoint>" with "post"
+    Then Response status should be <statuscode>
+    And Response parameter "name" should be equal to "<name>"
+    And Response parameter "job" should be equal to "<job>"
+   # And Response parameter "createdAt" should exist
+
+    Examples:
+      | name      | job    |statuscode|apiendpoint|
+      | morpheus  | leader |201|/api/users|
+
