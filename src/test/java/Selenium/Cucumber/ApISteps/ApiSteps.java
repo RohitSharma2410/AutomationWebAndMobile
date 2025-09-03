@@ -89,7 +89,7 @@ public class ApiSteps {
 		Assert.assertTrue(response.get().body().asString().contains(string));
 	}
 
-	@Then("Response status should be <{int}>")
+	@Then("Response status should be {int}")
 	public void response_status_should_be(Integer int1) {
 		// Write code here that turns the phrase above into concrete actions
 		Assert.assertTrue(response.get().statusCode()==int1);

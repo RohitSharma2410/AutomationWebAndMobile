@@ -175,8 +175,7 @@ response=new ThreadLocal<>();
         	System.out.println();
         	request.get().baseUri(BASEURI);
         	request.get().contentType(ContentType.APPLICATION_JSON.toString());
-        	request.get().log().all();
-        	
+        	request.get().header("x-api-key", "reqres-free-v1");
         }
     }
 
