@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Allure;
+
 import static Listeners.ParallelEventListenerCucumber.*; 
 public class ApiSteps {
 
@@ -33,12 +35,13 @@ public class ApiSteps {
 			Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json");
 			
 			Map<String, Object>dataObject=new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {});
-		System.out.println("request body is");
-			System.out.println(dataObject.toString());
+		
+			Allure.description("request body is");
+			Allure.description(dataObject.toString());
 			
 			datamaps.set(dataObject);
 		}  catch (Exception e) {
-			System.out.println();
+			Allure.description(e.getMessage());
 		}
 	}
 
