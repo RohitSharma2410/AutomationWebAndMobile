@@ -37,7 +37,7 @@ public class ApiSteps {
 		}
 	}
 
-	@When("api body parameter {string} is  {string}")
+	@When("API body parameter {string} is {string}")
 	public void api_body_parameter_is(String string1,String string2) {
 		// Write code here that turns the phrase above into concrete actions
 		datamaps.get().put(string1,string2);
