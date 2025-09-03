@@ -174,7 +174,7 @@ response=new ThreadLocal<>();
         	request.set(RestAssured.given());
         	request.get().baseUri(BASEURI);
         	request.get().contentType(ContentType.APPLICATION_JSON.toString());
-   
+        	request.get().log().all();
         }
     }
 

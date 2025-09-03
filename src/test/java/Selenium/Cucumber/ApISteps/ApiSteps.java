@@ -50,6 +50,7 @@ public class ApiSteps {
 		switch(string1.toLowerCase()) {
 		case "post":
 			response.set(request.get().when().post(string));
+			
 			break;
 		case "put":
 			response.set(request.get().when().put(string));
@@ -64,7 +65,7 @@ public class ApiSteps {
 				response.set(request.get().when().get(string));
 				break;
 		}
-		
+		response.get().then().log().all();
 		
 	}
 
