@@ -48,8 +48,17 @@ public class ApiSteps {
 	}
 
 	@When("API body parameter {string} is {string}")
-	public void api_body_parameter_is(String string1,String string2) {
+	public void api_body_parameter_is(String string1,String string2) throws StreamReadException, DatabindException, IOException {
 		// Write code here that turns the phrase above into concrete actions
+		System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/","createuser".toLowerCase()+".json").toString());
+		Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/","createuser".toLowerCase()+".json");
+		
+		Map<String, Object>dataObject=new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {});
+	
+		Allure.description("request body is");
+		Allure.description(dataObject.toString());
+		
+		datamaps.set(dataObject);
 		datamaps.get().put(string1,string2);
 		System.out.println(datamaps.get().toString());
 		
