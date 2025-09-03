@@ -14,7 +14,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TAGS', defaultValue: '@Mobile', description: 'Cucumber tags to execute')
+        string(name: 'TAGS', defaultValue: '@Mobile or @Web or @Api', description: 'Cucumber tags to execute')
         choice(name: 'ENVIRONMENT', choices: ['SIT', 'UAT'], description: 'Select target environment')
     }
 
