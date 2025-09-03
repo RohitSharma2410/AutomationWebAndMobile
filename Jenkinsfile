@@ -80,7 +80,7 @@ pipeline {
                     sh """
                       mvn clean test \
                       -Dbase.url=${baseUrl} \
-                      -Dbase.url=${baseURI} \
+                      -Dbase.URI=${baseURI} \
                       -Dcucumber.filter.tags="${tags}" \
                       -Dparallel.mode="${parallel}" \
                       -Dparallel.threads="${threads}"

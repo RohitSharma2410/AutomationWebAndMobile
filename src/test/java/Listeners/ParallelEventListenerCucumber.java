@@ -42,7 +42,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
     public static AppiumDriverLocalService service = null;
     public static final String BASE_URL = System.getProperty("base.url", "https://default.url");
-    public static final String BASEURI = System.getProperty("baseURI", "");
+    public static final String BASEURI = System.getProperty("base.URI", "");
 public static ThreadLocal<Map<String,Object>>datamaps=null;
     public static ThreadLocal<Scenario> scenarios = new ThreadLocal<>();
     public static ThreadLocal<AppiumDriver> mobileDrivers = new ThreadLocal<>();
@@ -172,6 +172,7 @@ response=new ThreadLocal<>();
         }
         if (event.getTestCase().getTags().contains("@Api")) {
         	request.set(RestAssured.given());
+        	System.out.println();
         	request.get().baseUri(BASEURI);
         	request.get().contentType(ContentType.APPLICATION_JSON.toString());
         	request.get().log().all();
