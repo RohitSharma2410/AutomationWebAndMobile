@@ -12,6 +12,7 @@ import org.testng.Assert;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -32,10 +33,10 @@ public class ApiSteps {
 	public void preparing_to_call_api(String string) throws StreamReadException, DatabindException, IOException {
 		// Write code here that turns the phrase above into concrete actions
 		try {
-			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json").toString());
-			Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json");
-			
-			Map<String, Object>dataObject=new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {});
+			InputStream inputStream = getClass().getClassLoader()
+				    .getResourceAsStream("apiRequestFiles/"+string+".json");
+
+			Map<String, Object>dataObject=new ObjectMapper().readValue(inputStream.readAllBytes(), new TypeReference<Map<String, Object>>() {});
 		
 			Allure.description("request body is");
 			Allure.description(dataObject.toString());
@@ -50,17 +51,11 @@ public class ApiSteps {
 	@When("API body parameter {string} is {string}")
 	public void api_body_parameter_is(String string1,String string2) throws StreamReadException, DatabindException, IOException {
 		// Write code here that turns the phrase above into concrete actions
-		System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/","createuser".toLowerCase()+".json").toString());
-		Path path=Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/","createuser".toLowerCase()+".json");
-		
-		Map<String, Object>dataObject=new ObjectMapper().readValue(new File(path.toString()), new TypeReference<Map<String, Object>>() {});
-	
-		Allure.description("request body is");
-		Allure.description(dataObject.toString());
-		
-		datamaps.set(dataObject);
+	System.out.println("Printing body object value");
+		System.out.println(datamaps.get().toString());
 		datamaps.get().put(string1,string2);
 		System.out.println(datamaps.get().toString());
+
 		
 	}
 
