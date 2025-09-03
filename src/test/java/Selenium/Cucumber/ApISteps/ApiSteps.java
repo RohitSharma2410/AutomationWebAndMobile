@@ -10,6 +10,7 @@ import java.util.Map;
 import org.testng.Assert;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,7 +29,7 @@ import static Listeners.ParallelEventListenerCucumber.*;
 public class ApiSteps {
 
 	@Given("Preparing to call {string} api")
-	public void preparing_to_call_api(String string) {
+	public void preparing_to_call_api(String string) throws StreamReadException, DatabindException, IOException {
 		// Write code here that turns the phrase above into concrete actions
 		try {
 			System.out.println("Path is "+Paths.get("/MyAutomationProject/src/test/resources/apiRequestFiles/",string.toLowerCase()+".json").toString());
@@ -40,9 +41,10 @@ public class ApiSteps {
 			Allure.description(dataObject.toString());
 			
 			datamaps.set(dataObject);
-		}  catch (Exception e) {
+		}  catch (FileNotFoundException e) {
 			Allure.description(e.getMessage());
-		}
+			
+		} 
 	}
 
 	@When("API body parameter {string} is {string}")
