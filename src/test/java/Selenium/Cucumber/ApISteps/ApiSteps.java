@@ -100,7 +100,7 @@ public class ApiSteps {
 		Allure.step(response.get().asString());
 	}
 
-	@Then("the response parameter {string} size should be {string} {int}")
+	@Then("response parameter {string} size should be {string} {int}")
 	public void response_parameter_size_should_be(String string,String string2,Integer int1) throws JsonMappingException, JsonProcessingException {
 		// Write code here that turns the phrase above into concrete actions
 		 String responseString = response.get().getBody().asString();
