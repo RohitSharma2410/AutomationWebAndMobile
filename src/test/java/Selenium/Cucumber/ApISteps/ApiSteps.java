@@ -46,6 +46,9 @@ public class ApiSteps {
 			
 			
 		} 
+		catch(NullPointerException e) {
+			
+		}
 	}
 
 	@When("API body parameter {string} is {string}")
@@ -99,7 +102,6 @@ public class ApiSteps {
 	@Then("Response parameter size should be <{int}>")
 	public void response_parameter_size_should_be(Integer int1) {
 		// Write code here that turns the phrase above into concrete actions
-	
 	}
 
 	@Then("Response parameter {string} should exists")

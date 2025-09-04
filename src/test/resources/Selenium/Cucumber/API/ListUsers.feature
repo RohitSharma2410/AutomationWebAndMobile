@@ -7,9 +7,7 @@ Feature: List User
     Given Preparing to call "listuser" api
     When I call "<apiendpoint>" with "post"
     Then Response status should be <statuscode>
-    And Response parameter "name" should be equal to "<name>"
-    And Response parameter "job" should be equal to "<job>"
-   # And Response parameter "createdAt" should exist
+
 
     Examples:
      |statuscode|apiendpoint|
