@@ -147,6 +147,7 @@ public class ApiSteps {
 		try {
 		JsonNode jsonNode=new ObjectMapper().readTree(response.get().getBody().asString()).path(jsonPath);
 		System.out.println(jsonNode);
+		Allure.step("node value is"+jsonNode.textValue());
 		if(jsonNode.isArray()) {
 			for (JsonNode node:jsonNode) {
 				if(node.isTextual()&&node.isValueNode() && node.textValue().equalsIgnoreCase(expectedValue)) {
