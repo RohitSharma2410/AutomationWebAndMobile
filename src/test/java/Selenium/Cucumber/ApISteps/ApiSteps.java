@@ -145,7 +145,7 @@ public class ApiSteps {
 	@Then("response parameter {string} should contain {string}")
 	public void verifyFieldContainsValue(String jsonPath, String expectedValue) throws Exception {
 		try {
-		JsonNode jsonNode=new ObjectMapper().readTree(response.get().asString()).get(jsonPath);
+		JsonNode jsonNode=new ObjectMapper().readTree(response.get().getBody().asString()).path(jsonPath);
 		if(jsonNode.isArray()) {
 			for (JsonNode node:jsonNode) {
 				if(node.isTextual()&&node.isValueNode() && node.textValue().equalsIgnoreCase(expectedValue)) {
