@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -99,9 +100,45 @@ public class ApiSteps {
 		Allure.step(response.get().asString());
 	}
 
-	@Then("Response parameter size should be <{int}>")
-	public void response_parameter_size_should_be(Integer int1) {
+	@Then("the response parameter {string} size should be {string} {int}")
+	public void response_parameter_size_should_be(String string,String string2,Integer int1) throws JsonMappingException, JsonProcessingException {
 		// Write code here that turns the phrase above into concrete actions
+		 String responseString = response.get().getBody().asString();
+
+		    ObjectMapper mapper = new ObjectMapper();
+		    JsonNode rootNode = mapper.readTree(responseString);
+		    JsonNode arrayNode = rootNode.path(string);
+
+		    if (!arrayNode.isArray()) {
+		        throw new AssertionError("The response parameter '" + string + "' is not a JSON array.");
+		    }
+
+		    int actualSize = arrayNode.size();
+
+		    switch (string2.toLowerCase()) {
+		        case "less than":
+		            if (actualSize >= int1) {
+		                throw new AssertionError("Expected size of '" + string + "' to be less than " + int1 +
+		                        " but was " + actualSize);
+		            }
+		            break;
+		        case "greater than":
+		            if (actualSize <= int1) {
+		                throw new AssertionError("Expected size of '" + string + "' to be greater than " + int1 +
+		                        " but was " + actualSize);
+		            }
+		            break;
+		        case "equal to":
+		        case "equals":
+		            if (actualSize != int1) {
+		                throw new AssertionError("Expected size of '" + string + "' to be equal to " + int1 +
+		                        " but was " + actualSize);
+		            }
+		            break;
+		        default:
+		            throw new IllegalArgumentException("Unsupported comparison operator: " + string2);
+		    }
+		
 	}
 
 	@Then("Response parameter {string} should exists")

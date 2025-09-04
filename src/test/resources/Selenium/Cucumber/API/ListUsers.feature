@@ -7,7 +7,7 @@ Feature: List User
     Given Preparing to call "listuser" api
     When I call "<apiendpoint>" with "get"
     Then Response status should be <statuscode>
-
+	And the response parameter "data" size should be equal to 10
 
     Examples:
      |statuscode|apiendpoint|
