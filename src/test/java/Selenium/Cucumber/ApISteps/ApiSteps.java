@@ -145,26 +145,31 @@ public class ApiSteps {
 	@Then("response parameter {string} should contain {string}")
 	public void verifyFieldContainsValue(String jsonPath, String expectedValue) throws Exception {
 		try {
-		JsonNode jsonNode=new ObjectMapper().readTree(jsonPath);
+		JsonNode jsonNode=new ObjectMapper().readTree(response.get().asString()).get(jsonPath);
 		if(jsonNode.isArray()) {
 			for (JsonNode node:jsonNode) {
-				if(node.isTextual()&&node.isValueNode()) {
-				if(node.textValue().equalsIgnoreCase(expectedValue)) {
+				if(node.isTextual()&&node.isValueNode() && node.textValue().equalsIgnoreCase(expectedValue)) {
+					System.out.println("Value matched");
 					return;
 				}
+				else {
+					continue;
 				}
+				
 			}
 			
 		}
 		if(!jsonNode.isArray()) {
 			if(jsonNode.isTextual()&&jsonNode.isValueNode()) {
 				if(jsonNode.textValue().equalsIgnoreCase(expectedValue)) {
+					System.out.println("Value matched");
+
 					return;
 				}
 				}
 		}
 		}
-		catch(Exception e) {
+		catch(JsonProcessingException e) {
 			throw new org.testng.TestException("Exception for testng");
 		}
 		}
