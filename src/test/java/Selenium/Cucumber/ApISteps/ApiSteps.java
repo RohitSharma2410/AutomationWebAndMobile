@@ -43,7 +43,7 @@ public class ApiSteps {
 			
 			datamaps.set(dataObject);
 		}  catch (FileNotFoundException e) {
-			Allure.description(e.getMessage());
+			
 			
 		} 
 	}
@@ -68,15 +68,15 @@ public class ApiSteps {
 			break;
 		case "put":
 			response.set(request.get().log().all().body(datamaps.get()).when().put(string));
-			break;	
+			break;
 		case "get":
-			response.set(request.get().log().all().body(datamaps.get()).when().get(string));
+			response.set(request.get().log().all().when().get(string));
 			break;
 		case "delete":
-			response.set(request.get().log().all().body(datamaps.get()).when().delete(string));
+			response.set(request.get().log().all().when().delete(string));
 			break;
 			default:
-				response.set(request.get().body(datamaps.get()).when().get(string));
+				response.set(request.get().when().get(string));
 				break;
 		}
 		response.get().then().log().all();
@@ -93,6 +93,7 @@ public class ApiSteps {
 	public void response_status_should_be(Integer int1) {
 		// Write code here that turns the phrase above into concrete actions
 		Assert.assertTrue(response.get().statusCode()==int1);
+		Allure.step(response.get().asString());
 	}
 
 	@Then("Response parameter size should be <{int}>")
