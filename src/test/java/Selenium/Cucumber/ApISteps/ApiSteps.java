@@ -141,6 +141,34 @@ public class ApiSteps {
 		
 	}
 
+	
+	@Then("response parameter {string} should contain {string}")
+	public void verifyFieldContainsValue(String jsonPath, String expectedValue) throws Exception {
+		try {
+		JsonNode jsonNode=new ObjectMapper().readTree(jsonPath);
+		if(jsonNode.isArray()) {
+			for (JsonNode node:jsonNode) {
+				if(node.isTextual()&&node.isValueNode()) {
+				if(node.textValue().equalsIgnoreCase(expectedValue)) {
+					return;
+				}
+				}
+			}
+			
+		}
+		if(!jsonNode.isArray()) {
+			if(jsonNode.isTextual()&&jsonNode.isValueNode()) {
+				if(jsonNode.textValue().equalsIgnoreCase(expectedValue)) {
+					return;
+				}
+				}
+		}
+		}
+		catch(Exception e) {
+			throw new org.testng.TestException("Exception for testng");
+		}
+		}
+	
 	@Then("Response parameter {string} should exists")
 	public void response_parameter_should_exists(String string) {
 		// Write code here that turns the phrase above into concrete actions

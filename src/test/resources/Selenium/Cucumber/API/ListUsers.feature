@@ -8,6 +8,8 @@ Feature: List User
     When I call "<apiendpoint>" with "get"
     Then Response status should be <statuscode>
 	And response parameter "data" size should be "equal to" 6
+	And response parameter "data.first_name" should be contain "Michael"
+	
 
     Examples:
      |statuscode|apiendpoint|
