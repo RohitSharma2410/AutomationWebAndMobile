@@ -5,7 +5,7 @@ Feature: List User
 
   Scenario: List user positive
     Given Preparing to call "listuser" api
-    When I call "<apiendpoint>" with "post"
+    When I call "<apiendpoint>" with "get"
     Then Response status should be <statuscode>
 
 
