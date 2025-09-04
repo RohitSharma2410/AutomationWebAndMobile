@@ -149,7 +149,7 @@ public class ApiSteps {
 		if(jsonNode.isArray()) {
 			for (JsonNode node:jsonNode) {
 				if(node.isTextual()&&node.isValueNode() && node.textValue().equalsIgnoreCase(expectedValue)) {
-					System.out.println("Value matched");
+					Allure.step(node.textValue());
 					return;
 				}
 				else {
