@@ -146,6 +146,7 @@ public class ApiSteps {
 	public void verifyFieldContainsValue(String jsonPath, String expectedValue) throws Exception {
 		try {
 		JsonNode jsonNode=new ObjectMapper().readTree(response.get().getBody().asString()).path(jsonPath);
+		System.out.println(jsonNode);
 		if(jsonNode.isArray()) {
 			for (JsonNode node:jsonNode) {
 				if(node.isTextual()&&node.isValueNode() && node.textValue().equalsIgnoreCase(expectedValue)) {
