@@ -268,7 +268,6 @@
                 <parallel.threads>1</parallel.threads>
             </properties>
         </profile>
-
         <!-- Optional CI profile -->
         <profile>
             <id>ci</id>
