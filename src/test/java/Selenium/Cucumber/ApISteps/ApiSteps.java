@@ -145,7 +145,7 @@ public class ApiSteps {
 	@Then("response parameter {string} should contain {string}")
 	public void verifyFieldContainsValue(String jsonPath, String expectedValue) throws Exception {
 		try {
-		JsonNode jsonNode=new ObjectMapper().readTree(response.get().getBody().asString()).path(jsonPath);
+		JsonNode jsonNode=new ObjectMapper().readTree(response.get().getBody().asString()).path(jsonPath.split("\\.")[0]);
 		System.out.println(jsonNode);
 		Allure.step("node value is"+jsonNode.textValue());
 		if(jsonNode.isArray()) {
