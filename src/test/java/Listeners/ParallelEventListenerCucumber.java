@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -177,10 +178,16 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     }
 
     private void handleTestStepStarted(TestStepStarted event) {
+    	
         if (event.getTestStep() instanceof PickleStepTestStep step) {
             String stepText = step.getStep().getKeyword() + step.getStep().getText();
             System.out.println("Test Step started: " + stepText);
-            Allure.step(stepText);
+            List<Argument>arguments=step.getDefinitionArgument();
+    	for(Argument arg:arguments) {
+    	Allure.addAttachment(arg.getParameterTypeName(), arg.getValue());
+    	
+    	
+    	}
         }
     }
 

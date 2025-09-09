@@ -264,8 +264,8 @@
                 <base.url>https://demo.applitools.com/</base.url>
                 <base.URI>https://reqres.in/</base.URI>
                 <cucumber.filter.tags>@Web or @Api or @Mobile</cucumber.filter.tags>
-                <parallel.mode>none</parallel.mode>
-                <parallel.threads>1</parallel.threads>
+                <parallel.mode>methods</parallel.mode>
+                <parallel.threads>5</parallel.threads>
             </properties>
         </profile>
         <!-- Optional CI profile -->

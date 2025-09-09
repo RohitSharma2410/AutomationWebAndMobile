@@ -63,6 +63,28 @@ public class ApiSteps {
 		
 	}
 
+	
+	@When("set requestparameter {string} {string} to {string}")
+	public void set_Api_Header(String string,String string1,Object object) throws StreamReadException, DatabindException, IOException {
+		// Write code here that turns the phrase above into concrete actions
+	switch(string.toLowerCase()) {
+	case "header":
+		request.get().header(string1,object);
+break;
+	case "query":
+		request.get().queryParam(string1, object);
+		break;
+	case "path":
+	request.get().pathParam(string1, object);
+	break;
+	default:
+		break;
+	}
+	}
+	
+	
+	
+	
 	@When("I call {string} with {string}")
 	public void i_call_api(String string,String string1) {
 		// Write code here that turns the phrase above into concrete actions
