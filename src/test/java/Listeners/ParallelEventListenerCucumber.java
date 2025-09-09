@@ -185,7 +185,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
             System.out.println("Test Step started: " + stepText);
             List<Argument>arguments=step.getDefinitionArgument();
     	for(Argument arg:arguments) {
-    	Allure.addAttachment(arg.getParameterTypeName(), arg.getValue());
+    	Allure.step("argument "+arg.toString()+" passed with "+arg.getValue());
     	
     	
     	}
