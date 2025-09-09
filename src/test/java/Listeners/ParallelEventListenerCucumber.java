@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.entity.ContentType;
+import org.joda.time.DateTime;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -178,7 +179,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     }
 
     private void handleTestStepStarted(TestStepStarted event) {
-    	Allure.step("started "+(event.getInstant().getEpochSecond()));
+    	Allure.step("started at mm:ss\t"+DateTime.now().getMinuteOfHour()+" : "+DateTime.now().getSecondOfMinute());
         if (event.getTestStep() instanceof PickleStepTestStep step) {
             String stepText = step.getStep().getKeyword() + step.getStep().getText();
             System.out.println("Test Step started: " + stepText);
@@ -192,7 +193,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     }
 
     private void handleTestStepFinished(TestStepFinished event) {
-    	Allure.step("finished "+(event.getInstant().getEpochSecond()));
+    	Allure.step("finished at mm:ss\t"+DateTime.now().getMinuteOfHour()+" : "+DateTime.now().getSecondOfMinute());
         if (event.getResult().getStatus() == Status.FAILED) {
             try {
                 if (drivers.get() != null) {
