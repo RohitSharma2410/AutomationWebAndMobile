@@ -178,7 +178,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     }
 
     private void handleTestStepStarted(TestStepStarted event) {
-    	
+    	Allure.step("started "+(event.getInstant().getEpochSecond()));
         if (event.getTestStep() instanceof PickleStepTestStep step) {
             String stepText = step.getStep().getKeyword() + step.getStep().getText();
             System.out.println("Test Step started: " + stepText);
@@ -192,6 +192,7 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
     }
 
     private void handleTestStepFinished(TestStepFinished event) {
+    	Allure.step("finished "+(event.getInstant().getEpochSecond()));
         if (event.getResult().getStatus() == Status.FAILED) {
             try {
                 if (drivers.get() != null) {
@@ -214,6 +215,9 @@ public class ParallelEventListenerCucumber implements ConcurrentEventListener, P
 
         if (event.getResult().getStatus() == Status.FAILED || event.getResult().getError() != null) {
             extentTest.get().fail(event.getTestCase().getName());
+            if(event.getResult().getError()!=null) {
+            	Allure.description(event.getResult().getError().getMessage());
+            }
         }
 
         try {
